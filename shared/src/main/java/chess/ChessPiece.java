@@ -3,6 +3,7 @@ package chess;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 
 /**
@@ -68,12 +69,15 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moveList = new ArrayList<>();
+        Collection<ChessMove> moveList = new HashSet<>();
     if (board.getPiece(myPosition).getPieceType() == PieceType.KING){
         KingMovesCalculator moves = new KingMovesCalculator();
         moveList = moves.pieceMoves(board, myPosition);
     } else if (board.getPiece(myPosition).getPieceType() == PieceType.QUEEN){
-
+        BishopMovesCalculator bishopMoves = new BishopMovesCalculator();
+        RookMovesCalculator rookMoves = new RookMovesCalculator();
+        moveList = bishopMoves.pieceMoves(board, myPosition);
+        moveList.addAll(rookMoves.pieceMoves(board, myPosition));
     } else if (board.getPiece(myPosition).getPieceType() == PieceType.BISHOP){
         BishopMovesCalculator moves = new BishopMovesCalculator();
         moveList = moves.pieceMoves(board, myPosition);
