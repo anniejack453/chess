@@ -88,7 +88,8 @@ public class ChessPiece {
         RookMovesCalculator moves = new RookMovesCalculator();
         moveList = moves.pieceMoves(board, myPosition);
     } else if (board.getPiece(myPosition).getPieceType() == PieceType.PAWN){
-
+        PawnMovesCalculator moves = new PawnMovesCalculator();
+        moveList = moves.pieceMoves(board, myPosition);
     }
     return moveList;
     }
