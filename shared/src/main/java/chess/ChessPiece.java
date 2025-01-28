@@ -79,7 +79,8 @@ public class ChessPiece {
     } else if (board.getPiece(myPosition).getPieceType() == PieceType.KNIGHT){
 
     } else if (board.getPiece(myPosition).getPieceType() == PieceType.ROOK){
-
+        RookMovesCalculator moves = new RookMovesCalculator();
+        moveList = moves.pieceMoves(board, myPosition);
     } else if (board.getPiece(myPosition).getPieceType() == PieceType.PAWN){
 
     }
