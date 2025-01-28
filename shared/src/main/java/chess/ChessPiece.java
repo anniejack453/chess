@@ -1,5 +1,7 @@
 package chess;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -66,8 +68,10 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        Collection<ChessMove> moveList = new ArrayList<>();
     if (board.getPiece(myPosition).getPieceType() == PieceType.KING){
-        new KingMovesCalculator();
+        KingMovesCalculator moves = new KingMovesCalculator();
+        moveList = moves.pieceMoves(board, myPosition);
     } else if (board.getPiece(myPosition).getPieceType() == PieceType.QUEEN){
 
     } else if (board.getPiece(myPosition).getPieceType() == PieceType.BISHOP){
@@ -79,5 +83,6 @@ public class ChessPiece {
     } else if (board.getPiece(myPosition).getPieceType() == PieceType.PAWN){
 
     }
+    return moveList;
     }
 }
