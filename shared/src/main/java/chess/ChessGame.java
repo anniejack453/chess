@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -8,16 +9,15 @@ import java.util.Collection;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessGame {
+public class ChessGame implements Cloneable{
     private TeamColor turnTeam;
     private ChessBoard currBoard;
-    private ChessBoard ogBoard = new ChessBoard();
+    private ChessPiece mover;
 
     public ChessGame() {
         currBoard = new ChessBoard();
         currBoard.resetBoard();
         turnTeam = TeamColor.WHITE;
-
     }
 
     /**
@@ -59,7 +59,12 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> moves;
+        Collection<ChessMove> finalMoves = new HashSet<>();
+        ChessPiece piece = new ChessPiece(turnTeam, currBoard.getPiece(startPosition).getPieceType());
+        moves = piece.pieceMoves(currBoard,startPosition);
+
+        return finalMoves;
     }
 
     /**
@@ -71,7 +76,26 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessBoard copyBoard = new ChessBoard();
+        ChessPiece mover = new ChessPiece(turnTeam,currBoard.getPiece(move.getStartPosition()).getPieceType());
+        ChessGame chess = new ChessGame();
+        Collection<ChessMove> moves;
+        chess.setBoard(currBoard);
+        moves = chess.validMoves(move.getStartPosition());
+        for (int i = 1; i <= 8; i++){
+            for (int j = 1; j <= 8; j++){
+                ChessPosition position = new ChessPosition(i,j);
+                copyBoard.addPiece(position,currBoard.getPiece(position));
+            }
+        }
+        ChessPiece copyMover = new ChessPiece(turnTeam,copyBoard.getPiece(move.getStartPosition()).getPieceType());
+        if (moves.contains(move)){
+            currBoard.addPiece(move.getEndPosition(),mover);
+            currBoard.addPiece(move.getStartPosition(),null);
+        }
+        if (mover.getTeamColor() == TeamColor.BLACK) {
+            turnTeam = TeamColor.WHITE;
+        } else {turnTeam = TeamColor.BLACK;};
     }
 
     /**
@@ -83,7 +107,8 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> moves = new HashSet<>();
+        return true;
     }
 
     /**
