@@ -11,8 +11,12 @@ import java.util.Collection;
 public class ChessGame {
     private TeamColor turnTeam;
     private ChessBoard currBoard;
+    private ChessBoard ogBoard = new ChessBoard();
 
     public ChessGame() {
+        currBoard = new ChessBoard();
+        currBoard.resetBoard();
+        turnTeam = TeamColor.WHITE;
 
     }
 
@@ -44,6 +48,12 @@ public class ChessGame {
     /**
      * Gets a valid moves for a piece at the given location
      *
+     * Piece moves, but account for putting king in check as invalid
+     *
+     * if king in check, only include moves that put king out of check
+     * make move on duplicate board, call isInCheck again, if isInCheck is
+     * true, don't include move, if it isn't in check, include
+     *
      * @param startPosition the piece to get valid moves for
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
@@ -55,7 +65,9 @@ public class ChessGame {
     /**
      * Makes a move in a chess game
      *
-     * @param move chess move to preform
+     * If move is in valid moves, move
+     *
+     * @param move chess move to perform
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
@@ -64,6 +76,8 @@ public class ChessGame {
 
     /**
      * Determines if the given team is in check
+     * Calculate valid moves for every piece on team, if one contains opposing
+     * king's position, king is in check
      *
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
@@ -75,6 +89,8 @@ public class ChessGame {
     /**
      * Determines if the given team is in checkmate
      *
+     * no valid moves for current team, king in check
+     *
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
@@ -85,6 +101,8 @@ public class ChessGame {
     /**
      * Determines if the given team is in stalemate, which here is defined as having
      * no valid moves
+     *
+     * no valid moves for current team, king not in Check
      *
      * @param teamColor which team to check for stalemate
      * @return True if the specified team is in stalemate, otherwise false
