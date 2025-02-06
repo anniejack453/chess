@@ -25,7 +25,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
             newPosition = new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn());
             piece = board.getPiece(newPosition);
             if (piece == null) {
-                piece = board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn()));
+                piece = board.getPiece(new ChessPosition(newPosition.getRow() + 1, myPosition.getColumn()));
                 if (piece == null) {
                     move = new ChessMove(myPosition, newPosition, null);
                     moves.add(move);
@@ -57,7 +57,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
             newPosition = new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn());
             piece = board.getPiece(newPosition);
             if (piece == null) {
-                piece = board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn()));
+                piece = board.getPiece(new ChessPosition(newPosition.getRow() - 1, myPosition.getColumn()));
                 if (piece == null) {
                     move = new ChessMove(myPosition, newPosition, null);
                     moves.add(move);

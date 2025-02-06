@@ -57,8 +57,7 @@ public class ChessGame implements Cloneable{
 
     public boolean simulateMoves(ChessMove move) {
         ChessBoard copyBoard = currBoard;
-        Collection<ChessMove> moves = new HashSet<>();
-        ChessPiece mover = new ChessPiece(turnTeam,currBoard.getPiece(move.getStartPosition()).getPieceType());
+        ChessPiece mover = new ChessPiece(currBoard.getPiece(move.getStartPosition()).getTeamColor(),currBoard.getPiece(move.getStartPosition()).getPieceType());
         for (int i = 1; i <= 8; i++){
             for (int j = 1; j <= 8; j++){
                 ChessPosition position = new ChessPosition(i,j);
@@ -66,15 +65,16 @@ public class ChessGame implements Cloneable{
             }
         }
         // add code for pawns getting promoted
+        ChessPiece enemy = copyBoard.getPiece(move.getEndPosition());
         copyBoard.addPiece(move.getEndPosition(),mover);
         copyBoard.addPiece(move.getStartPosition(),null);
-        if (isInCheck(turnTeam)) {
+        if (isInCheck(currBoard.getPiece(move.getEndPosition()).getTeamColor())) {
             copyBoard.addPiece(move.getStartPosition(),mover);
-            copyBoard.addPiece(move.getEndPosition(),null);
+            copyBoard.addPiece(move.getEndPosition(),enemy);
             return true;
         } else {
             copyBoard.addPiece(move.getStartPosition(),mover);
-            copyBoard.addPiece(move.getEndPosition(),null);
+            copyBoard.addPiece(move.getEndPosition(),enemy);
             return false;
         }
 //        for (int i = 1; i <= 8; i++) {
@@ -106,7 +106,9 @@ public class ChessGame implements Cloneable{
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         Collection<ChessMove> moves;
+        Collection<ChessMove> filteredMoves = new HashSet<>();
         ChessPiece piece = currBoard.getPiece(startPosition);
+
         if (piece != null) {
             moves = piece.pieceMoves(currBoard,startPosition);
             Iterator<ChessMove> iterator = moves.iterator();
@@ -114,9 +116,11 @@ public class ChessGame implements Cloneable{
                 ChessMove move = iterator.next();
                 if (simulateMoves(move)){
                     iterator.remove();
+                } else {
+                    filteredMoves.add(move);
                 }
             }
-            return moves;
+            return filteredMoves;
         } else {return null;}
 // makeMove on CopyBoard, then recheck if runthrough of valid moves puts own king in check. if a move does, remove that
         // from list of valid moves.
@@ -135,12 +139,29 @@ public class ChessGame implements Cloneable{
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        ChessPiece mover = new ChessPiece(turnTeam,currBoard.getPiece(move.getStartPosition()).getPieceType());
+        ChessPiece mover = currBoard.getPiece(move.getStartPosition());
         Collection<ChessMove> moves;
         moves = validMoves(move.getStartPosition());
+        if (mover == null){
+            throw new InvalidMoveException("Not a piece");
+        }
+        if (mover.getTeamColor() != turnTeam){
+            throw new InvalidMoveException("Not your turn");
+        }
         if (moves.contains(move)){ //think about pawns, this logic doesn't include
-            currBoard.addPiece(move.getEndPosition(),mover);
-            currBoard.addPiece(move.getStartPosition(),null);
+            if (mover.getPieceType() == ChessPiece.PieceType.PAWN){
+                if (move.getPromotionPiece() != null){
+                    ChessPiece promoPiece = new ChessPiece(mover.getTeamColor(),move.getPromotionPiece());
+                    currBoard.addPiece(move.getEndPosition(),promoPiece);
+                    currBoard.addPiece(move.getStartPosition(),null);
+                } else {
+                    currBoard.addPiece(move.getEndPosition(),mover);
+                    currBoard.addPiece(move.getStartPosition(),null);
+                }
+            } else {
+                currBoard.addPiece(move.getEndPosition(),mover);
+                currBoard.addPiece(move.getStartPosition(),null);
+            }
         } else throw new InvalidMoveException("Invalid move");
         if (mover.getTeamColor() == TeamColor.BLACK) {
             turnTeam = TeamColor.WHITE;
@@ -174,7 +195,9 @@ public class ChessGame implements Cloneable{
                 if (currBoard.getPiece(position) != null && currBoard.getPiece(position).getTeamColor() != teamColor && kingPos != null){
                     moves = currBoard.getPiece(position).pieceMoves(currBoard,position);
                     for (ChessMove move : moves) {
-                        if (move.getEndPosition().getRow() == kingPos.getRow() && move.getEndPosition().getColumn() == kingPos.getColumn()){
+                        if (move.getEndPosition().equals(kingPos)){
+                            System.out.println(position);
+                            System.out.println(currBoard.getPiece(position).getPieceType());
                             return true;
                         } else {continue;}
                     }
