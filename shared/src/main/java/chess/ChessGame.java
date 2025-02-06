@@ -2,6 +2,8 @@ package chess;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -53,6 +55,39 @@ public class ChessGame implements Cloneable{
         BLACK
     }
 
+    public boolean simulateMoves(ChessMove move) {
+        ChessBoard copyBoard = currBoard;
+        Collection<ChessMove> moves = new HashSet<>();
+        ChessPiece mover = new ChessPiece(turnTeam,currBoard.getPiece(move.getStartPosition()).getPieceType());
+        for (int i = 1; i <= 8; i++){
+            for (int j = 1; j <= 8; j++){
+                ChessPosition position = new ChessPosition(i,j);
+                copyBoard.addPiece(position,currBoard.getPiece(position));
+            }
+        }
+        // add code for pawns getting promoted
+        copyBoard.addPiece(move.getEndPosition(),mover);
+        copyBoard.addPiece(move.getStartPosition(),null);
+        if (isInCheck(turnTeam)) {
+            copyBoard.addPiece(move.getStartPosition(),mover);
+            copyBoard.addPiece(move.getEndPosition(),null);
+            return true;
+        } else {
+            copyBoard.addPiece(move.getStartPosition(),mover);
+            copyBoard.addPiece(move.getEndPosition(),null);
+            return false;
+        }
+//        for (int i = 1; i <= 8; i++) {
+//            for (int j = 1; j <= 8; j++) {
+//                ChessPosition position = new ChessPosition(i, j);
+//                ChessPiece piece = new ChessPiece(copyBoard.getPiece(position).getTeamColor(), copyBoard.getPiece(position).getPieceType());
+//                if (piece.getPieceType() != null) {
+//                    moves = piece.pieceMoves(copyBoard, position);
+//                }
+//            }
+//        }
+    }
+
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -70,51 +105,25 @@ public class ChessGame implements Cloneable{
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-//        ChessBoard copyBoard = new ChessBoard();
-//        Collection<ChessMove> moves;
-//        Collection<ChessMove> middleMoves;
-//        ChessPosition kingPos = null;
-//        ChessPosition otherKingPos = null;
-        Collection<ChessMove> finalMoves = new HashSet<>();
-//        ChessGame chess = new ChessGame();
-//        chess.setBoard(currBoard);
-//
-//        for (int i = 1; i <= 8; i++){
-//            for (int j = 1; j <= 8; j++){
-//                ChessPosition position = new ChessPosition(i,j);
-//                copyBoard.addPiece(position,currBoard.getPiece(position));
-//                if (copyBoard.getPiece(position).getPieceType() == ChessPiece.PieceType.KING && chess.getTeamTurn() == turnTeam){
-//                    kingPos = position;
-//                }
-//                if (copyBoard.getPiece(position).getPieceType() == ChessPiece.PieceType.KING && chess.getTeamTurn() != turnTeam){
-//                    otherKingPos = position;
-//                }
-//            }
-//        }
-//        for (int i = 1; i <= 8; i++){
-//            for (int j = 1; j <= 8; j++){
-//                ChessPosition position = new ChessPosition(i,j);
-//                ChessPiece piece = new ChessPiece(copyBoard.getPiece(position).getTeamColor(),copyBoard.getPiece(position).getPieceType());
-//                if (piece.getPieceType() != null) {
-//                    middleMoves = piece.pieceMoves(copyBoard,position);
-//                    for (ChessMove move : middleMoves) {
-//                        if (move.getEndPosition() == otherKingPos){
-//                            if (piece.getTeamColor() == TeamColor.BLACK) {
-//                                isInCheck(TeamColor.WHITE);
-//                            } else {isInCheck(TeamColor.BLACK);}
-//                        }
-//                    }
-//                }
-//
-//            }
-//        }
+        Collection<ChessMove> moves;
+        ChessPiece piece = currBoard.getPiece(startPosition);
+        if (piece != null) {
+            moves = piece.pieceMoves(currBoard,startPosition);
+            Iterator<ChessMove> iterator = moves.iterator();
+            while (iterator.hasNext()){
+                ChessMove move = iterator.next();
+                if (simulateMoves(move)){
+                    iterator.remove();
+                }
+            }
+            return moves;
+        } else {return null;}
 // makeMove on CopyBoard, then recheck if runthrough of valid moves puts own king in check. if a move does, remove that
         // from list of valid moves.
         // if own king in check, make move, then run valid moves for other team again.
         // try running for each team. go over board, looking for teamcolor teamTurn, then check
 //                ChessPiece mover = new ChessPiece(turnTeam, copyBoard.getPiece(startPosition).getPieceType());
 //                moves = mover.pieceMoves(copyBoard,position);
-        return finalMoves;
     }
 
     /**
@@ -126,11 +135,9 @@ public class ChessGame implements Cloneable{
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        ChessBoard copyBoard = new ChessBoard();
         ChessPiece mover = new ChessPiece(turnTeam,currBoard.getPiece(move.getStartPosition()).getPieceType());
         Collection<ChessMove> moves;
         moves = validMoves(move.getStartPosition());
-//        ChessPiece copyMover = new ChessPiece(turnTeam,copyBoard.getPiece(move.getStartPosition()).getPieceType());
         if (moves.contains(move)){ //think about pawns, this logic doesn't include
             currBoard.addPiece(move.getEndPosition(),mover);
             currBoard.addPiece(move.getStartPosition(),null);
@@ -169,7 +176,7 @@ public class ChessGame implements Cloneable{
                     for (ChessMove move : moves) {
                         if (move.getEndPosition().getRow() == kingPos.getRow() && move.getEndPosition().getColumn() == kingPos.getColumn()){
                             return true;
-                        }
+                        } else {continue;}
                     }
                 }
             }
