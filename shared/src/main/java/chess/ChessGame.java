@@ -15,11 +15,17 @@ public class ChessGame implements Cloneable{
     private TeamColor turnTeam;
     private ChessBoard currBoard;
     private ChessPiece mover;
+    private boolean isInCheck;
+    private boolean isInStalemate;
+    private boolean isInCheckmate;
 
     public ChessGame() {
         currBoard = new ChessBoard();
         currBoard.resetBoard();
         turnTeam = TeamColor.WHITE;
+        isInCheck = false;
+        isInStalemate = false;
+        isInCheckmate = false;
     }
 
 //    @Override
@@ -64,7 +70,6 @@ public class ChessGame implements Cloneable{
                 copyBoard.addPiece(position,currBoard.getPiece(position));
             }
         }
-        // add code for pawns getting promoted
         ChessPiece enemy = copyBoard.getPiece(move.getEndPosition());
         copyBoard.addPiece(move.getEndPosition(),mover);
         copyBoard.addPiece(move.getStartPosition(),null);
@@ -148,7 +153,7 @@ public class ChessGame implements Cloneable{
         if (mover.getTeamColor() != turnTeam){
             throw new InvalidMoveException("Not your turn");
         }
-        if (moves.contains(move)){ //think about pawns, this logic doesn't include
+        if (moves.contains(move)){
             if (mover.getPieceType() == ChessPiece.PieceType.PAWN){
                 if (move.getPromotionPiece() != null){
                     ChessPiece promoPiece = new ChessPiece(mover.getTeamColor(),move.getPromotionPiece());
@@ -196,10 +201,11 @@ public class ChessGame implements Cloneable{
                     moves = currBoard.getPiece(position).pieceMoves(currBoard,position);
                     for (ChessMove move : moves) {
                         if (move.getEndPosition().equals(kingPos)){
-                            System.out.println(position);
-                            System.out.println(currBoard.getPiece(position).getPieceType());
+//                            System.out.println(position);
+//                            System.out.println(currBoard.getPiece(position).getPieceType());
+                            isInCheck = true;
                             return true;
-                        } else {continue;}
+                        }
                     }
                 }
             }
@@ -216,7 +222,23 @@ public class ChessGame implements Cloneable{
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> moves = new HashSet<>();
+        for (int i = 1; i <= 8; i++){
+            for (int j = 1; j <= 8; j++){
+                ChessPosition position = new ChessPosition(i,j);
+                if (currBoard.getPiece(position) != null && currBoard.getPiece(position).getTeamColor() == teamColor && !isInCheck(teamColor)){
+                    moves = validMoves(position);
+                    if (!moves.isEmpty()){
+                        return false;
+                    }
+                }
+            }
+        }
+        if (isInCheck(teamColor) && moves.isEmpty()){
+            isInCheckmate = true;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -229,7 +251,23 @@ public class ChessGame implements Cloneable{
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> moves;
+        if (!isInCheck(teamColor)){
+            for (int i = 1; i <= 8; i++){
+                for (int j = 1; j <= 8; j++){
+                    ChessPosition position = new ChessPosition(i,j);
+                    if (currBoard.getPiece(position) != null && currBoard.getPiece(position).getTeamColor() == teamColor && !isInCheck(teamColor)){
+                        moves = validMoves(position);
+                        if (!moves.isEmpty()){
+                            return false;
+                        }
+                    }
+                }
+            }
+            isInStalemate = true;
+            return true;
+        }
+        return false;
     }
 
     /**
