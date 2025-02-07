@@ -26,14 +26,6 @@ public class ChessGame{
         isInCheckmate = false;
     }
 
-//    @Override
-//    protected Object copyBoard() throws CloneNotSupportedException {
-//        try {
-//            return copyBoard();
-//        } catch (CloneNotSupportedException e) {
-//            throw new AssertionError("Cloning not supported", e);
-//        }
-//    }
     /**
      * @return Which team's turn it is
      */
@@ -80,15 +72,6 @@ public class ChessGame{
             copyBoard.addPiece(move.getEndPosition(),enemy);
             return false;
         }
-//        for (int i = 1; i <= 8; i++) {
-//            for (int j = 1; j <= 8; j++) {
-//                ChessPosition position = new ChessPosition(i, j);
-//                ChessPiece piece = new ChessPiece(copyBoard.getPiece(position).getTeamColor(), copyBoard.getPiece(position).getPieceType());
-//                if (piece.getPieceType() != null) {
-//                    moves = piece.pieceMoves(copyBoard, position);
-//                }
-//            }
-//        }
     }
 
     /**
@@ -125,12 +108,6 @@ public class ChessGame{
             }
             return filteredMoves;
         } else {return null;}
-// makeMove on CopyBoard, then recheck if runthrough of valid moves puts own king in check. if a move does, remove that
-        // from list of valid moves.
-        // if own king in check, make move, then run valid moves for other team again.
-        // try running for each team. go over board, looking for teamcolor teamTurn, then check
-//                ChessPiece mover = new ChessPiece(turnTeam, copyBoard.getPiece(startPosition).getPieceType());
-//                moves = mover.pieceMoves(copyBoard,position);
     }
 
     /**
