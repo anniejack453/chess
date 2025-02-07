@@ -76,12 +76,9 @@ public class ChessGame{
 
     /**
      * Gets a valid moves for a piece at the given location
-     *
      * Piece moves, but account for putting king in check as invalid
-     *
      * !Using start position, find a piece and all its possible moves, but has to
      * account for that move putting their king in check!
-     *
      * if king in check, only include moves that put king out of check
      * make move on duplicate board, call isInCheck again, if isInCheck is
      * true, don't include move, if it isn't in check, include
@@ -112,7 +109,6 @@ public class ChessGame{
 
     /**
      * Makes a move in a chess game
-     *
      * If move is in valid moves, move
      *
      * @param move chess move to perform
@@ -188,7 +184,6 @@ public class ChessGame{
 
     /**
      * Determines if the given team is in checkmate
-     *
      * no valid moves for current team, king in check
      *
      * @param teamColor which team to check for checkmate
@@ -217,7 +212,6 @@ public class ChessGame{
     /**
      * Determines if the given team is in stalemate, which here is defined as having
      * no valid moves
-     *
      * no valid moves for current team, king not in Check
      *
      * @param teamColor which team to check for stalemate
