@@ -3,7 +3,6 @@ package chess;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -11,10 +10,9 @@ import java.util.List;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessGame implements Cloneable{
+public class ChessGame{
     private TeamColor turnTeam;
     private ChessBoard currBoard;
-    private ChessPiece mover;
     private boolean isInCheck;
     private boolean isInStalemate;
     private boolean isInCheckmate;
@@ -170,7 +168,7 @@ public class ChessGame implements Cloneable{
         } else throw new InvalidMoveException("Invalid move");
         if (mover.getTeamColor() == TeamColor.BLACK) {
             turnTeam = TeamColor.WHITE;
-        } else {turnTeam = TeamColor.BLACK;};
+        } else {turnTeam = TeamColor.BLACK;}
     }
 
     /**
@@ -201,8 +199,6 @@ public class ChessGame implements Cloneable{
                     moves = currBoard.getPiece(position).pieceMoves(currBoard,position);
                     for (ChessMove move : moves) {
                         if (move.getEndPosition().equals(kingPos)){
-//                            System.out.println(position);
-//                            System.out.println(currBoard.getPiece(position).getPieceType());
                             isInCheck = true;
                             return true;
                         }
@@ -226,7 +222,7 @@ public class ChessGame implements Cloneable{
         for (int i = 1; i <= 8; i++){
             for (int j = 1; j <= 8; j++){
                 ChessPosition position = new ChessPosition(i,j);
-                if (currBoard.getPiece(position) != null && currBoard.getPiece(position).getTeamColor() == teamColor && !isInCheck(teamColor)){
+                if (currBoard.getPiece(position) != null && currBoard.getPiece(position).getTeamColor() == teamColor){
                     moves = validMoves(position);
                     if (!moves.isEmpty()){
                         return false;
