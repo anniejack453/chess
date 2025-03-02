@@ -43,6 +43,7 @@ public class Server extends encoderDecoder {
     }
 
     private Object delete(Request request, Response response) {
+        return null;
     }
 
     private Object register(Request registerRequest, Response registerResponse) throws Exception {
