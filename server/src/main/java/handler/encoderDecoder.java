@@ -9,7 +9,7 @@ public class encoderDecoder<T> {
     }
 
     public T decodeHeader(Request req, Class<T> tClass){
-        return new Gson().fromJson(req.headers("Authorization: "), tClass);
+        return new Gson().fromJson(req.headers("/Authorization"), tClass);
     }
 
     public String encode(T obj){

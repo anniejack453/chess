@@ -89,7 +89,7 @@ public class Server extends encoderDecoder {
     }
 //FIXME: req.headers() cannot find Authorization
     private Object logout(Request req, Response res){
-        LogoutRequest logoutReq = new Gson().fromJson(req.headers("Authorization: "), LogoutRequest.class);
+        LogoutRequest logoutReq = new Gson().fromJson(req.headers("/authorization"), LogoutRequest.class);
 //                (LogoutRequest) decodeHeader(req, LogoutRequest.class);
         var authData = authService.getAuth(logoutReq.authToken());
         if (!Objects.equals(authData.authToken(), logoutReq.authToken())){
