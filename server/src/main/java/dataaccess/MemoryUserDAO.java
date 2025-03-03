@@ -22,4 +22,9 @@ public class MemoryUserDAO implements UserDAO{
     public Collection<UserData> listUsers() {
         return users.values();
     }
+
+    @Override
+    public void clearUsers() {
+        users.clear();
+    }
 }

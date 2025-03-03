@@ -2,11 +2,9 @@ package server;
 
 import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
-import service.AuthService;
-import service.LoginRequest;
-import service.LogoutRequest;
-import service.UserService;
+import service.*;
 import spark.*;
 import com.google.gson.Gson;
 import java.util.*;
@@ -16,6 +14,7 @@ import model.*;
 public class Server extends encoderDecoder {
     private final UserService userService = new UserService(new MemoryUserDAO());
     private final AuthService authService = new AuthService(new MemoryAuthDAO());
+    private final GameService gameService = new GameService(new MemoryGameDAO());
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -27,6 +26,9 @@ public class Server extends encoderDecoder {
         Spark.post("/session",this::login);
         Spark.delete("/session",this::logout);
         Spark.delete("/db",this::delete);
+        Spark.get("/game",this::listGames);
+        Spark.post("/game",this::createGame);
+        Spark.put("/game",this::joinGame);
 
         Spark.get("/error",this::throwError400);
         Spark.exception(Exception.class, this::errorHandler);
@@ -42,17 +44,28 @@ public class Server extends encoderDecoder {
         return Spark.port();
     }
 
+
     private Object delete(Request request, Response response) {
-        return null;
+        userService.clearUsers();
+        authService.clearAuths();
+        gameService.clearGames();
+        if (gameService.listGames().isEmpty() && userService.listUsers().isEmpty() && authService.listAuths().isEmpty()){
+            return Map.of();
+        }
+        return errorHandler(new Exception(),request,response);
     }
 
     private Object register(Request registerRequest, Response registerResponse) throws Exception {
         UserData registerReq = (UserData) decode(registerRequest,UserData.class);
         var userData = userService.getUser(registerReq.username());
-        if (userData == null){
-            userData = userService.createUser(registerReq);
+        if (registerReq.password() != null && registerReq.username() != null && registerReq.email() != null){
+            if (userData == null){
+                userData = userService.createUser(registerReq);
+            } else {
+                return throwError403(registerRequest, registerResponse);
+            }
         } else {
-            return throwError403(registerRequest, registerResponse);
+            return throwError400(registerRequest,registerResponse);
         }
         var authData = authService.createAuth(userData.username());
         var body = encode(Map.of("username",authData.username(),"authToken",authData.authToken()));
@@ -67,7 +80,7 @@ public class Server extends encoderDecoder {
             return throwError401(request, response);
         }
         if (!Objects.equals(logReq.password(), userData.password())){
-            return errorHandler(new Exception("Incorrect password"), request, response);
+            return throwError401(request, response);
         }
         var authData = authService.createAuth(userData.username());
         var body = encode(Map.of("username",authData.username(),"authToken",authData.authToken()));
@@ -88,6 +101,18 @@ public class Server extends encoderDecoder {
         }
         authService.listAuths();
         return res.body();
+    }
+
+    private Object joinGame(Request request, Response response) {
+        return null;
+    }
+
+    private Object createGame(Request request, Response response) {
+        return null;
+    }
+
+    private Object listGames(Request request, Response response) {
+        return null;
     }
 
     private Object throwError401(Request req, Response res) {

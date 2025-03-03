@@ -9,4 +9,6 @@ public interface AuthDAO {
     public void deleteAuth(String authToken);
     public AuthData getUserFromAuth(String authToken);
     public Collection<AuthData> listAuths();
+
+    void clearAuths();
 }

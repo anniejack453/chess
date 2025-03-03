@@ -30,4 +30,8 @@ public class AuthService{
         return dataAccess.listAuths();
     }
 
+    public void clearAuths(){
+        dataAccess.clearAuths();
+    }
+
 }

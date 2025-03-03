@@ -15,4 +15,9 @@ public class MemoryGameDAO implements GameDAO{
         return games.values();
     }
 
+    @Override
+    public void clearGames() {
+        games.clear();
+    }
+
 }
