@@ -7,5 +7,7 @@ public interface GameDAO {
     public void clearGames();
     public GameData createGame(String gameName);
     public GameData getGame(String gameName);
+    public String getGameID(Integer gameID);
+    public GameData joinGame(String gameName, String playerColor, String username) throws Exception;
 
 }

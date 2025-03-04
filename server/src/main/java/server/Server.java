@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
@@ -102,8 +103,29 @@ public class Server extends encoderDecoder {
         return Map.of();
     }
 
-    private Object joinGame(Request request, Response response) {
-        return null;
+    private Object joinGame(Request req, Response res) throws Exception {
+        String authReq = decodeHeader(req, AuthRequest.class);
+        JoinRequest joinReq = (JoinRequest) decode(req, JoinRequest.class);
+        var authData = authService.getAuth(authReq);
+        if (!authService.listAuths().contains(authData)){
+            return throwError401(req,res);
+        }
+        if (!Objects.equals(authData.authToken(), authReq)){
+            return throwError401(req, res);
+        }
+        var gameName = gameService.getGameID(joinReq.gameID());
+        if (gameName == null) {
+            return throwError400(req,res);
+        }
+        GameData gameUpdate = gameService.joinGame(gameName, joinReq.playerColor(), authData.username());
+        if (gameUpdate == null && !Objects.equals(joinReq.playerColor(), "WHITE") && !Objects.equals(joinReq.playerColor(), "BLACK")){
+            return throwError400(req,res);
+        } else if (gameUpdate == null && joinReq.playerColor().equals("BLACK")){
+            return throwError403(req,res);
+        } else if (gameUpdate == null && joinReq.playerColor().equals("WHITE")){
+            return throwError403(req,res);
+        }
+        return Map.of();
     }
 
     private Object createGame(Request req, Response res) {
@@ -137,7 +159,6 @@ public class Server extends encoderDecoder {
             return throwError401(req, res);
         }
         var gameList = gameService.listGames();
-//        for (int i=0;i<gameList.size();i++){}
         var body = encode(Map.of("games",gameList));
         res.body(body);
         return body;

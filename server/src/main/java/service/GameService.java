@@ -28,4 +28,12 @@ public class GameService {
     public GameData createGame(String gameName){
         return dataAccess.createGame(gameName);
     }
+
+    public String getGameID(Integer gameID){
+        return dataAccess.getGameID(gameID);
+    }
+
+    public GameData joinGame(String gameName, String playerColor, String username) throws Exception {
+        return dataAccess.joinGame(gameName,playerColor,username);
+    }
 }
