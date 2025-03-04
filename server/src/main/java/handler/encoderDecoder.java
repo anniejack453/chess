@@ -1,9 +1,6 @@
 package handler;
 import com.google.gson.Gson;
-import model.UserData;
 import spark.*;
-
-import java.util.Map;
 
 public class encoderDecoder<T> {
     public T decode(Request req, Class<T> tClass){
@@ -11,8 +8,7 @@ public class encoderDecoder<T> {
     }
 
     public String decodeHeader(Request req, Class<T> tClass){
-        String authToken = req.headers("authorization");
-        return authToken;
+        return req.headers("authorization");
     }
 
     public String encode(T obj){
