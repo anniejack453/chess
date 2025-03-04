@@ -1,6 +1,5 @@
 package server;
 
-import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
@@ -89,29 +88,59 @@ public class Server extends encoderDecoder {
     }
 
     private Object logout(Request req, Response res){
-        String logoutReq = decodeHeader(req, LogoutRequest.class);
+        String logoutReq = decodeHeader(req, AuthRequest.class);
         var authData = authService.getAuth(logoutReq);
+        if (!authService.listAuths().contains(authData)){
+            return throwError401(req,res);
+        }
         if (!Objects.equals(authData.authToken(), logoutReq)){
             return throwError401(req, res);
         }
-        authService.listAuths();
         if (authData.authToken() != null){
             authService.deleteAuth(authData.authToken());
         }
-        authService.listAuths();
-        return res.body();
+        return Map.of();
     }
 
     private Object joinGame(Request request, Response response) {
         return null;
     }
 
-    private Object createGame(Request request, Response response) {
-        return null;
+    private Object createGame(Request req, Response res) {
+        String listReq = decodeHeader(req, AuthRequest.class);
+        CreateGameRequest createGameReq = (CreateGameRequest) decode(req, CreateGameRequest.class);
+        var authData = authService.getAuth(listReq);
+        if (!authService.listAuths().contains(authData)){
+            return throwError401(req,res);
+        }
+        if (!Objects.equals(authData.authToken(), listReq)){
+            return throwError401(req, res);
+        }
+        var gameData = gameService.getGame(createGameReq.gameName());
+        if (gameData == null){
+            gameData = gameService.createGame(createGameReq.gameName());
+        } else {
+            return throwError403(req, res);
+        }
+        var body = encode(Map.of("gameID",gameData.gameID()));
+        res.body(body);
+        return body;
     }
 
-    private Object listGames(Request request, Response response) {
-        return null;
+    private Object listGames(Request req, Response res) {
+        String listReq = decodeHeader(req, AuthRequest.class);
+        var authData = authService.getAuth(listReq);
+        if (!authService.listAuths().contains(authData)){
+            return throwError401(req,res);
+        }
+        if (!Objects.equals(authData.authToken(), listReq)){
+            return throwError401(req, res);
+        }
+        var gameList = gameService.listGames();
+//        for (int i=0;i<gameList.size();i++){}
+        var body = encode(Map.of("games",gameList));
+        res.body(body);
+        return body;
     }
 
     private Object throwError401(Request req, Response res) {

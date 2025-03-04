@@ -20,4 +20,12 @@ public class GameService {
     public Collection<GameData> listGames(){
         return dataAccess.listGames();
     }
+
+    public GameData getGame(String gameName){
+        return dataAccess.getGame(gameName);
+    }
+
+    public GameData createGame(String gameName){
+        return dataAccess.createGame(gameName);
+    }
 }
