@@ -2,7 +2,7 @@ package handler;
 import com.google.gson.Gson;
 import spark.*;
 
-public class encoderDecoder<T> {
+public class EncoderDecoder<T> {
     public T decode(Request req, Class<T> tClass){
         return new Gson().fromJson(req.body(), tClass);
     }

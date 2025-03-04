@@ -25,4 +25,24 @@ class AuthServiceTest {
     @Test
     void clearAuths() {
     }
+
+    @Test
+    void testCreateAuth() {
+    }
+
+    @Test
+    void testGetAuth() {
+    }
+
+    @Test
+    void testDeleteAuth() {
+    }
+
+    @Test
+    void testListAuths() {
+    }
+
+    @Test
+    void testClearAuths() {
+    }
 }

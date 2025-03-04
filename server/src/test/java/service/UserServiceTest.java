@@ -39,4 +39,20 @@ public class UserServiceTest {
     @Test
     void clearUsers() {
     }
+
+    @Test
+    void getUser() {
+    }
+
+    @Test
+    void createUser() {
+    }
+
+    @Test
+    void testListUsers() {
+    }
+
+    @Test
+    void testClearUsers() {
+    }
 }

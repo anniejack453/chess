@@ -13,4 +13,28 @@ class GameServiceTest {
     @Test
     void listGames() {
     }
+
+    @Test
+    void testClearGames() {
+    }
+
+    @Test
+    void testListGames() {
+    }
+
+    @Test
+    void getGame() {
+    }
+
+    @Test
+    void createGame() {
+    }
+
+    @Test
+    void getGameID() {
+    }
+
+    @Test
+    void joinGame() {
+    }
 }

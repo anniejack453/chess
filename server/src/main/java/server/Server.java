@@ -1,6 +1,5 @@
 package server;
 
-import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
@@ -8,10 +7,10 @@ import service.*;
 import spark.*;
 import com.google.gson.Gson;
 import java.util.*;
-import handler.encoderDecoder;
+import handler.EncoderDecoder;
 import model.*;
 
-public class Server extends encoderDecoder {
+public class Server extends EncoderDecoder {
     private final UserService userService = new UserService(new MemoryUserDAO());
     private final AuthService authService = new AuthService(new MemoryAuthDAO());
     private final GameService gameService = new GameService(new MemoryGameDAO());

@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.GameDAO;
-import dataaccess.UserDAO;
 import model.GameData;
 
 import java.util.Collection;
