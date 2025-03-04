@@ -138,7 +138,7 @@ public class ChessGame{
                 currBoard.addPiece(move.getEndPosition(),mover);
                 currBoard.addPiece(move.getStartPosition(),null);
             }
-        } else throw new InvalidMoveException("Invalid move");
+        } else {throw new InvalidMoveException("Invalid move");}
         if (mover.getTeamColor() == TeamColor.BLACK) {
             turnTeam = TeamColor.WHITE;
         } else {turnTeam = TeamColor.BLACK;}

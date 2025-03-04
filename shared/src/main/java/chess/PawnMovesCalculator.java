@@ -30,14 +30,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
                     moves.add(move);
                 }
             }
-            if (myPosition.getColumn() + 1 <= 8) {
-                newPosition = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1);
-                addMove(board,myPosition,moves);
-            }
-            if (myPosition.getColumn() - 1 > 0) {
-                newPosition = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1);
-                addMove(board,myPosition,moves);
-            }
+            blackAddMovesInBounds(board, myPosition, moves);
         } else if (myPosition.getRow() == 2 && myPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             newPosition = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn());
             piece = board.getPiece(newPosition);
@@ -54,14 +47,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
                     moves.add(move);
                 }
             }
-            if (myPosition.getColumn() + 1 <= 8) {
-                newPosition = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1);
-                addMove(board,myPosition,moves);
-            }
-            if (myPosition.getColumn() - 1 > 0) {
-                newPosition = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1);
-                addMove(board,myPosition,moves);
-            }
+            whiteAddMovesInBounds(board, myPosition, moves);
         } else if (myPosition.getRow() == 7 && myPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             newPosition = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn());
             piece = board.getPiece(newPosition);
@@ -109,14 +95,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
                 move = new ChessMove(myPosition, newPosition, null);
                 moves.add(move);
             }
-            if (myPosition.getColumn() + 1 <= 8) {
-                newPosition = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1);
-                addMove(board,myPosition,moves);
-            }
-            if (myPosition.getColumn() - 1 > 0) {
-                newPosition = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1);
-                addMove(board,myPosition,moves);
-            }
+            whiteAddMovesInBounds(board, myPosition, moves);
         } else if (2 < myPosition.getRow() && myPosition.getRow() <= 7 && myPiece.getTeamColor() == ChessGame.TeamColor.BLACK) {
             newPosition = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn());
             piece = board.getPiece(newPosition);
@@ -124,17 +103,33 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
                 move = new ChessMove(myPosition, newPosition, null);
                 moves.add(move);
             }
-            if (myPosition.getColumn() + 1 <= 8) {
-                newPosition = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1);
-                addMove(board,myPosition,moves);
-            }
-            if (myPosition.getColumn() - 1 > 0) {
-                newPosition = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1);
-                addMove(board,myPosition,moves);
-            }
+            blackAddMovesInBounds(board, myPosition, moves);
         }
         return moves;
     }
+
+    private void whiteAddMovesInBounds(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
+        if (myPosition.getColumn() + 1 <= 8) {
+            newPosition = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1);
+            addMove(board,myPosition,moves);
+        }
+        if (myPosition.getColumn() - 1 > 0) {
+            newPosition = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1);
+            addMove(board,myPosition,moves);
+        }
+    }
+
+    private void blackAddMovesInBounds(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
+        if (myPosition.getColumn() + 1 <= 8) {
+            newPosition = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1);
+            addMove(board,myPosition,moves);
+        }
+        if (myPosition.getColumn() - 1 > 0) {
+            newPosition = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1);
+            addMove(board,myPosition,moves);
+        }
+    }
+
     private void addPromotionMoves(ChessPosition myPosition, HashSet<ChessMove> moves) {
         move = new ChessMove(myPosition, newPosition, ChessPiece.PieceType.QUEEN);
         moves.add(move);

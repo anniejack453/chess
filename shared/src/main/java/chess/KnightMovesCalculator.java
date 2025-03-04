@@ -50,10 +50,7 @@ public class KnightMovesCalculator implements PieceMovesCalculator{
 
     private void addMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
         piece = board.getPiece(newPosition);
-        if (piece == null) {
-            move = new ChessMove(myPosition, newPosition, null);
-            moves.add(move);
-        } else if (piece.getTeamColor() != myPiece.getTeamColor()) {
+        if (piece == null || piece.getTeamColor() != myPiece.getTeamColor()) {
             move = new ChessMove(myPosition, newPosition, null);
             moves.add(move);
         }
