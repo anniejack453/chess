@@ -53,7 +53,9 @@ public class ChessGame{
 
     public boolean simulateMoves(ChessMove move) {
         ChessBoard copyBoard = currBoard;
-        ChessPiece mover = new ChessPiece(currBoard.getPiece(move.getStartPosition()).getTeamColor(),currBoard.getPiece(move.getStartPosition()).getPieceType());
+        TeamColor pieceTeamColor = currBoard.getPiece(move.getStartPosition()).getTeamColor();
+        ChessPiece.PieceType pieceType = currBoard.getPiece(move.getStartPosition()).getPieceType();
+        ChessPiece mover = new ChessPiece(pieceTeamColor,pieceType);
         for (int i = 1; i <= 8; i++){
             for (int j = 1; j <= 8; j++){
                 ChessPosition position = new ChessPosition(i,j);
