@@ -10,7 +10,10 @@ public class MemoryAuthDAO implements AuthDAO{
     final private HashMap<String, AuthData> authTokens = new HashMap<>();
 
     @Override
-    public AuthData createAuth(String username) {
+    public AuthData createAuth(String username) throws Exception{
+        if (username == null || username.isEmpty()){
+            throw new Exception("Username cannot be empty");
+        }
         String authToken = UUID.randomUUID().toString();
         AuthData authData = new AuthData(authToken,username);
         authTokens.put(authToken,authData);
@@ -23,7 +26,10 @@ public class MemoryAuthDAO implements AuthDAO{
     }
 
     @Override
-    public AuthData getUserFromAuth(String authToken) {
+    public AuthData getUserFromAuth(String authToken) throws Exception {
+        if (authToken == null || authToken.isEmpty()){
+            throw new Exception("Need authToken");
+        }
         return authTokens.get(authToken);
     }
 

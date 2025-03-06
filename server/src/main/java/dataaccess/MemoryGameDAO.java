@@ -1,9 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
-import model.AuthData;
 import model.GameData;
-import model.UserData;
 
 import java.util.*;
 
@@ -22,12 +20,15 @@ public class MemoryGameDAO implements GameDAO{
 
     @Override
     public GameData createGame(String gameName) {
-        Random rand = new Random();
-        Integer gameID = rand.nextInt(10000);
-        ChessGame game = new ChessGame();
-        GameData gameData = new GameData(gameID,null,null,gameName,game);
-        games.put(gameName, gameData);
-        return gameData;
+        if (gameName != null && !gameName.isEmpty()){
+            Random rand = new Random();
+            Integer gameID = rand.nextInt(10000);
+            ChessGame game = new ChessGame();
+            GameData gameData = new GameData(gameID,null,null,gameName,game);
+            games.put(gameName, gameData);
+            return gameData;
+        }
+        return null;
     }
 
     @Override

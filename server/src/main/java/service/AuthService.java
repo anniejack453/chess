@@ -12,12 +12,12 @@ public class AuthService{
         this.dataAccess = dataAccess;
     }
 
-    public AuthData createAuth(String username) {
+    public AuthData createAuth(String username) throws Exception{
         AuthData authData = dataAccess.createAuth(username);
         return authData;
     }
 
-    public AuthData getAuth(String authToken){
+    public AuthData getAuth(String authToken) throws Exception {
         AuthData authData = dataAccess.getUserFromAuth(authToken);
         return authData;
     }

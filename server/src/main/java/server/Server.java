@@ -72,7 +72,7 @@ public class Server extends EncoderDecoder {
         return body;
     }
 
-    private Object login(Request request, Response response) {
+    private Object login(Request request, Response response) throws Exception {
         LoginRequest logReq = (LoginRequest) decode(request, LoginRequest.class);
         var userData = userService.getUser(logReq.username());
         if (userData == null){
@@ -87,7 +87,7 @@ public class Server extends EncoderDecoder {
         return body;
     }
 
-    private Object logout(Request req, Response res){
+    private Object logout(Request req, Response res) throws Exception {
         String logoutReq = decodeHeader(req, AuthRequest.class);
         var authData = authService.getAuth(logoutReq);
         if (!authService.listAuths().contains(authData)){
@@ -127,7 +127,7 @@ public class Server extends EncoderDecoder {
         return Map.of();
     }
 
-    private Object createGame(Request req, Response res) {
+    private Object createGame(Request req, Response res) throws Exception {
         String listReq = decodeHeader(req, AuthRequest.class);
         CreateGameRequest createGameReq = (CreateGameRequest) decode(req, CreateGameRequest.class);
         var authData = authService.getAuth(listReq);
@@ -148,7 +148,7 @@ public class Server extends EncoderDecoder {
         return body;
     }
 
-    private Object listGames(Request req, Response res) {
+    private Object listGames(Request req, Response res) throws Exception {
         String listReq = decodeHeader(req, AuthRequest.class);
         var authData = authService.getAuth(listReq);
         if (!authService.listAuths().contains(authData)){

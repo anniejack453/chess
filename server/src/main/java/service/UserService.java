@@ -17,12 +17,7 @@ public class UserService {
     }
 
     public UserData createUser(UserData userData) throws Exception{
-        if (dataAccess.listUsers().contains(userData)){
-            throw new Exception("Error: already taken");
-        } else{
-            dataAccess.createUser(userData);
-        }
-        return userData;
+        return dataAccess.createUser(userData);
     }
 
     public Collection<UserData> listUsers(){
