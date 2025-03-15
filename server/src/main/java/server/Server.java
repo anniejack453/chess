@@ -11,7 +11,7 @@ import model.*;
 
 public class Server extends EncoderDecoder {
     private final UserService userService = new UserService(new SQLUserDAO());
-    private final AuthService authService = new AuthService(new MemoryAuthDAO());
+    private final AuthService authService = new AuthService(new SQLAuthDAO());
     private final GameService gameService = new GameService(new MemoryGameDAO());
 
     public Server() throws DataAccessException {
