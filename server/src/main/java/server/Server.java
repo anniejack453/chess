@@ -114,11 +114,11 @@ public class Server extends EncoderDecoder {
         if (!Objects.equals(authData.authToken(), authReq)){
             return throwError401(req, res);
         }
-        var gameName = gameService.getGameID(joinReq.gameID()); //TODO: maybe change name to ID
+        var gameName = gameService.getGameID(joinReq.gameID());
         if (gameName == null) {
             return throwError400(req,res);
         }
-        GameData gameUpdate = gameService.joinGame(gameName, joinReq.playerColor(), authData.username()); //TODO: maybe change name to ID
+        GameData gameUpdate = gameService.joinGame(gameName, joinReq.playerColor(), authData.username());
         if (gameUpdate == null && !Objects.equals(joinReq.playerColor(), "WHITE") && !Objects.equals(joinReq.playerColor(), "BLACK")){
             return throwError400(req,res);
         } else if (gameUpdate == null && joinReq.playerColor().equals("BLACK")){
@@ -139,7 +139,7 @@ public class Server extends EncoderDecoder {
         if (!Objects.equals(authData.authToken(), listReq)){
             return throwError401(req, res);
         }
-        var gameData = gameService.getGame(createGameReq.gameName()); //FIXME: may need to change to ID
+        var gameData = gameService.getGame(createGameReq.gameName());
         if (gameData == null){
             gameData = gameService.createGame(createGameReq.gameName());
         } else {

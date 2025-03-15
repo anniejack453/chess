@@ -15,26 +15,26 @@ class SQLAuthDAOTest {
     @BeforeEach
     void setup() throws Exception {
         authData = new SQLAuthDAO();
-        auth1 = authData.createAuth("user");
-        auth2 = authData.createAuth("Ann");
+        auth1 = authData.createAuth("newUser");
+        auth2 = authData.createAuth("AnnaE");
     }
 
     @Test
     void createAuthPos() throws Exception {
-        AuthData newAuth = authData.createAuth("user");
+        AuthData newAuth = authData.createAuth("newUser");
         assertTrue(authData.listAuths().contains(newAuth));
     }
 
     @Test
     void createAuthNeg() throws Exception {
         assertThrows(Exception.class, () -> {
-            authData.createAuth("");
+            authData.createAuth(null);
         });
     }
 
     @Test
     void getAuthPos() throws Exception {
-        AuthData userAuth = authData.createAuth("hi");
+        AuthData userAuth = authData.createAuth("hippy");
         String authToken = userAuth.authToken();
         assertEquals(userAuth,authData.getUserFromAuth(authToken));
     }
@@ -42,13 +42,13 @@ class SQLAuthDAOTest {
     @Test
     void getAuthNeg() throws Exception {
         assertThrows(Exception.class, () -> {
-            authData.getUserFromAuth("");
+            authData.getUserFromAuth(null);
         });
     }
 
     @Test
     void deleteAuthPos() throws Exception {
-        AuthData userAuth = authData.createAuth("hi");
+        AuthData userAuth = authData.createAuth("hip");
         String authToken = userAuth.authToken();
         authData.deleteAuth(authToken);
         Assertions.assertFalse(authData.listAuths().contains(userAuth));
@@ -57,7 +57,7 @@ class SQLAuthDAOTest {
     @Test
     void deleteAuthNeg() throws Exception {
         var sizeBefore = authData.listAuths().size();
-        authData.deleteAuth("101");
+        authData.deleteAuth("10123");
         Assertions.assertEquals(sizeBefore, authData.listAuths().size());
     }
 

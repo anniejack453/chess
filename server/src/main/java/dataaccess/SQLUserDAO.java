@@ -72,8 +72,8 @@ public class SQLUserDAO implements UserDAO{
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
+                    if (param instanceof String p) {ps.setString(i + 1, p);}
+                    else if (param == null) {ps.setNull(i + 1, NULL);}
                 }
                 ps.executeUpdate();
             }
@@ -96,25 +96,14 @@ public class SQLUserDAO implements UserDAO{
     };
 
     private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
-        }
+        SQLAuthDAO.configureDatabase(createStatements);
     }
 
     private String storeUserPassword(String clearTextPassword) {
-        // write the hashed password in database along with the user's other information
         return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
     }
 
     private boolean verifyUser(String username, String providedClearTextPassword) throws DataAccessException {
-        // read the previously hashed password from the database
         var hashedPassword = readHashedPasswordFromDatabase(username);
 
         return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
