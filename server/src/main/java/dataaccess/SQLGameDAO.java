@@ -2,15 +2,12 @@ package dataaccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import model.AuthData;
 import model.GameData;
-import model.UserData;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
@@ -49,9 +46,9 @@ public class SQLGameDAO implements GameDAO{
 
     @Override
     public GameData createGame(String gameName) throws DataAccessException {
-        var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
+        var statement = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         var game = new Gson().toJson(new ChessGame());
-        var gameID = executeGameUpdate(statement, 1, null, null, gameName, game);
+        var gameID = executeGameUpdate(statement, null, null, gameName, game);
         return new GameData(gameID, null, null, gameName, new ChessGame());
     }
 

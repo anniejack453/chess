@@ -1,13 +1,11 @@
 package dataaccess;
 
 import model.AuthData;
-import model.UserData;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;

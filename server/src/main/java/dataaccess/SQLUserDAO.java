@@ -3,12 +3,9 @@ package dataaccess;
 import model.UserData;
 
 import java.util.Collection;
-import java.util.List;
-import com.google.gson.Gson;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.sql.*;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
