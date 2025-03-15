@@ -23,11 +23,11 @@ public class AuthService{
         return authData;
     }
 
-    public void deleteAuth(String authToken){
+    public void deleteAuth(String authToken) throws DataAccessException {
         dataAccess.deleteAuth(authToken);
     }
 
-    public Collection<AuthData> listAuths(){
+    public Collection<AuthData> listAuths() throws DataAccessException {
         return dataAccess.listAuths();
     }
 
