@@ -37,6 +37,9 @@ public class SQLAuthDAO implements AuthDAO{
 
     @Override
     public AuthData getUserFromAuth(String authToken) throws Exception {
+        if (authToken == null || authToken.isEmpty()){
+            throw new Exception("Need authToken");
+        }
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT authToken, username FROM auths WHERE authToken=?";
             try (var ps = conn.prepareStatement(statement)) {
