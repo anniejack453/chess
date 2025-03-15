@@ -1,8 +1,11 @@
 package dataaccess;
 
 import model.AuthData;
+import model.UserData;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -39,13 +42,27 @@ public class SQLAuthDAO implements AuthDAO{
     }
 
     @Override
-    public Collection<AuthData> listAuths() {
-        return List.of();
+    public Collection<AuthData> listAuths() throws DataAccessException {
+        var result = new ArrayList<AuthData>();
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT authToken, username FROM auths";
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        result.add(readAuth(rs));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return result;
     }
 
     @Override
-    public void clearAuths() {
-
+    public void clearAuths() throws DataAccessException {
+        var statement = "TRUNCATE auths";
+        executeUpdate(statement);
     }
 
     private void executeUpdate(String statement, Object... params) throws DataAccessException {
@@ -85,5 +102,11 @@ public class SQLAuthDAO implements AuthDAO{
         } catch (SQLException ex) {
             throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
         }
+    }
+
+    private AuthData readAuth(ResultSet rs) throws SQLException {
+        var authToken = rs.getString("authToken");
+        var username = rs.getString("username");
+        return new AuthData(authToken,username);
     }
 }

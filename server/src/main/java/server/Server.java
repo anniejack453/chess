@@ -46,7 +46,7 @@ public class Server extends EncoderDecoder {
     }
 
 
-    private Object delete(Request request, Response response) {
+    private Object delete(Request request, Response response) throws DataAccessException {
         userService.clearUsers();
         authService.clearAuths();
         gameService.clearGames();

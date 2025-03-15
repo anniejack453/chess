@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import model.AuthData;
 
 import java.util.Collection;
@@ -30,7 +31,7 @@ public class AuthService{
         return dataAccess.listAuths();
     }
 
-    public void clearAuths(){
+    public void clearAuths() throws DataAccessException {
         dataAccess.clearAuths();
     }
 

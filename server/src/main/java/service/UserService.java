@@ -21,11 +21,11 @@ public class UserService {
         return dataAccess.createUser(userData);
     }
 
-    public Collection<UserData> listUsers(){
+    public Collection<UserData> listUsers() throws DataAccessException {
         return dataAccess.listUsers();
     }
 
-    public void clearUsers(){
+    public void clearUsers() throws DataAccessException {
         dataAccess.clearUsers();
     }
 

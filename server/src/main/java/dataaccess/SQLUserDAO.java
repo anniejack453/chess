@@ -47,13 +47,27 @@ public class SQLUserDAO implements UserDAO{
     }
 
     @Override
-    public Collection<UserData> listUsers() {
-        return List.of();
+    public Collection<UserData> listUsers() throws DataAccessException {
+        var result = new ArrayList<UserData>();
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, password, email FROM users";
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        result.add(readUser(rs));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return result;
     }
 
     @Override
-    public void clearUsers() {
-
+    public void clearUsers() throws DataAccessException {
+        var statement = "TRUNCATE users";
+        executeUpdate(statement);
     }
 
     private void executeUpdate(String statement, Object... params) throws DataAccessException {
