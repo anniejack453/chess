@@ -29,7 +29,7 @@ public class GameService {
         return dataAccess.createGame(gameName);
     }
 
-    public String getGameID(Integer gameID){
+    public String getGameID(Integer gameID) throws DataAccessException {
         return dataAccess.getGameID(gameID);
     }
 
