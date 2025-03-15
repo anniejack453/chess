@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.GameData;
 
@@ -12,19 +13,19 @@ public class GameService {
         this.dataAccess = dataAccess;
     }
 
-    public void clearGames(){
+    public void clearGames() throws DataAccessException {
         dataAccess.clearGames();
     }
 
-    public Collection<GameData> listGames(){
+    public Collection<GameData> listGames() throws DataAccessException {
         return dataAccess.listGames();
     }
 
-    public GameData getGame(String gameName){
-        return dataAccess.getGame(gameName);
+    public GameData getGame(String gameName) throws DataAccessException {
+        return dataAccess.getGameData(gameName);
     }
 
-    public GameData createGame(String gameName){
+    public GameData createGame(String gameName) throws DataAccessException {
         return dataAccess.createGame(gameName);
     }
 

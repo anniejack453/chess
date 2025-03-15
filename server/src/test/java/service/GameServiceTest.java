@@ -43,12 +43,12 @@ class GameServiceTest {
 
     @Test
     void getGamePos() {
-        assertEquals(game1,gameData.getGame("help"));
+        assertEquals(game1,gameData.getGameData("help"));
     }
 
     @Test
     void getGameNeg() {
-        assertNull(gameData.getGame("he"));
+        assertNull(gameData.getGameData("he"));
     }
 
     @Test

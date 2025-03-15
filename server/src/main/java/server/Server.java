@@ -12,7 +12,7 @@ import model.*;
 public class Server extends EncoderDecoder {
     private final UserService userService = new UserService(new SQLUserDAO());
     private final AuthService authService = new AuthService(new SQLAuthDAO());
-    private final GameService gameService = new GameService(new MemoryGameDAO());
+    private final GameService gameService = new GameService(new SQLGameDAO());
 
     public Server() throws DataAccessException {
     }
@@ -114,11 +114,11 @@ public class Server extends EncoderDecoder {
         if (!Objects.equals(authData.authToken(), authReq)){
             return throwError401(req, res);
         }
-        var gameName = gameService.getGameID(joinReq.gameID());
+        var gameName = gameService.getGameID(joinReq.gameID()); //TODO: maybe change name to ID
         if (gameName == null) {
             return throwError400(req,res);
         }
-        GameData gameUpdate = gameService.joinGame(gameName, joinReq.playerColor(), authData.username());
+        GameData gameUpdate = gameService.joinGame(gameName, joinReq.playerColor(), authData.username()); //TODO: maybe change name to ID
         if (gameUpdate == null && !Objects.equals(joinReq.playerColor(), "WHITE") && !Objects.equals(joinReq.playerColor(), "BLACK")){
             return throwError400(req,res);
         } else if (gameUpdate == null && joinReq.playerColor().equals("BLACK")){
@@ -139,7 +139,7 @@ public class Server extends EncoderDecoder {
         if (!Objects.equals(authData.authToken(), listReq)){
             return throwError401(req, res);
         }
-        var gameData = gameService.getGame(createGameReq.gameName());
+        var gameData = gameService.getGame(createGameReq.gameName()); //FIXME: may need to change to ID
         if (gameData == null){
             gameData = gameService.createGame(createGameReq.gameName());
         } else {
