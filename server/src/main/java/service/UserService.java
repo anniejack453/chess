@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.UserData;
 
@@ -12,7 +13,7 @@ public class UserService {
         this.dataAccess = dataAccess;
     }
 
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
         return dataAccess.getUser(username);
     }
 

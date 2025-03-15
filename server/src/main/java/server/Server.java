@@ -1,8 +1,7 @@
 package server;
 
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
+import org.mindrot.jbcrypt.BCrypt;
 import service.*;
 import spark.*;
 import com.google.gson.Gson;
@@ -11,9 +10,12 @@ import handler.EncoderDecoder;
 import model.*;
 
 public class Server extends EncoderDecoder {
-    private final UserService userService = new UserService(new MemoryUserDAO());
+    private final UserService userService = new UserService(new SQLUserDAO());
     private final AuthService authService = new AuthService(new MemoryAuthDAO());
     private final GameService gameService = new GameService(new MemoryGameDAO());
+
+    public Server() throws DataAccessException {
+    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -78,7 +80,7 @@ public class Server extends EncoderDecoder {
         if (userData == null){
             return throwError401(request, response);
         }
-        if (!Objects.equals(logReq.password(), userData.password())){
+        if (!verifyUser(userData.username(),logReq.password())){
             return throwError401(request, response);
         }
         var authData = authService.createAuth(userData.username());
@@ -185,6 +187,18 @@ public class Server extends EncoderDecoder {
         res.status(403);
         res.body(body);
         return body;
+    }
+
+    private String readHashedPasswordFromDatabase(String username) throws DataAccessException {
+        var userData = userService.getUser(username);
+        return userData.password();
+    }
+
+    private boolean verifyUser(String username, String providedClearTextPassword) throws DataAccessException {
+        // read the previously hashed password from the database
+        var hashedPassword = readHashedPasswordFromDatabase(username);
+
+        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
     }
 
     public Object errorHandler(Exception e, Request req, Response res) {
