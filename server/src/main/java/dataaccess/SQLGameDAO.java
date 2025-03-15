@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
@@ -74,8 +75,11 @@ public class SQLGameDAO implements GameDAO{
 
     @Override
     public String getGameID(Integer gameID) throws DataAccessException {
+        if (gameID == null){
+            return null;
+        }
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gameName FROM games WHERE gameID=?";
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games WHERE gameID=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(1,gameID);
                 try (var rs = ps.executeQuery()) {
@@ -92,6 +96,27 @@ public class SQLGameDAO implements GameDAO{
 
     @Override
     public GameData joinGame(String gameName, String playerColor, String username) throws Exception {
+        GameData gameData = getGameData(gameName);
+        if (gameData == null){
+            throw new Exception("Game name not found");
+        }
+        if (Objects.equals(playerColor, "WHITE")){
+            if (gameData.whiteUsername() == null){
+                var statement = "UPDATE games SET whiteUsername = ? WHERE gameName = ?";
+                executeGameUpdate(statement, username, gameName);
+                return getGameData(gameName);
+            } else {
+                return null;
+            }
+        } else if (Objects.equals(playerColor, "BLACK")) {
+            if (gameData.blackUsername() == null) {
+                var statement = "UPDATE games SET blackUsername = ? WHERE gameName = ?";
+                executeGameUpdate(statement, username, gameName);
+                return getGameData(gameName);
+            } else {
+                return null;
+            }
+        }
         return null;
     }
 
