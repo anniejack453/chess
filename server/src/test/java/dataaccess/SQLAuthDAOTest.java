@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.AuthData;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,11 @@ class SQLAuthDAOTest {
         authData = new SQLAuthDAO();
         auth1 = authData.createAuth("newUser");
         auth2 = authData.createAuth("AnnaE");
+    }
+
+    @AfterEach
+    void clearData() throws DataAccessException {
+        authData.clearAuths();
     }
 
     @Test
