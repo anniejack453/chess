@@ -12,6 +12,7 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class SQLAuthDAO implements AuthDAO{
+    private SQLUserDAO sqlUserDAO = new SQLUserDAO();
 
     public SQLAuthDAO() throws DataAccessException {
         configureDatabase();

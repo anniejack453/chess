@@ -10,11 +10,18 @@ import handler.EncoderDecoder;
 import model.*;
 
 public class Server extends EncoderDecoder {
-    private final UserService userService = new UserService(new SQLUserDAO());
-    private final AuthService authService = new AuthService(new SQLAuthDAO());
-    private final GameService gameService = new GameService(new SQLGameDAO());
+    private UserService userService;
+    private AuthService authService;
+    private GameService gameService;
 
-    public Server() throws DataAccessException {
+    public Server() {
+        try {
+            userService = new UserService(new SQLUserDAO());
+            authService = new AuthService(new SQLAuthDAO());
+            gameService = new GameService(new SQLGameDAO());
+        } catch (DataAccessException e) {
+            System.out.println("Error");
+        }
     }
 
     public int run(int desiredPort) {
