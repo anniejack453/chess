@@ -140,7 +140,7 @@ public class Server extends EncoderDecoder {
             return throwError401(req, res);
         }
         var gameData = gameService.getGame(createGameReq.gameName());
-        if (gameData == null){
+        if (gameData == null && createGameReq.gameName() != null){
             gameData = gameService.createGame(createGameReq.gameName());
         } else {
             return throwError403(req, res);
@@ -195,7 +195,6 @@ public class Server extends EncoderDecoder {
     }
 
     private boolean verifyUser(String username, String providedClearTextPassword) throws DataAccessException {
-        // read the previously hashed password from the database
         var hashedPassword = readHashedPasswordFromDatabase(username);
 
         return BCrypt.checkpw(providedClearTextPassword, hashedPassword);

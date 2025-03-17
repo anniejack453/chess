@@ -63,7 +63,7 @@ class SQLGameDAOTest {
 
     @Test
     void createGameNeg() throws DataAccessException {
-        var game3 = gameData.createGame("");
+        var game3 = gameData.createGame(null);
         assertFalse(gameData.listGames().contains(game3));
     }
 
@@ -84,7 +84,7 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void joinGameNeg() throws Exception {
+    void joinGameNeg() {
         assertThrows(Exception.class, () -> {
             gameData.joinGame("hen","WHITE","a");
         });
