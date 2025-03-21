@@ -2,11 +2,14 @@ package client;
 
 import org.junit.jupiter.api.*;
 import server.Server;
+import ui.ServerFacade;
+import
 
 
 public class ServerFacadeTests {
 
     private static Server server;
+    static ServerFacade facade;
 
     @BeforeAll
     public static void init() {
