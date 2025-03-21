@@ -1,9 +1,12 @@
 package client;
 
+import exception.ResponseException;
+import model.AuthData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import ui.ServerFacade;
-import
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ServerFacadeTests {
@@ -16,6 +19,12 @@ public class ServerFacadeTests {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
+        facade = new ServerFacade(port);
+    }
+
+    @BeforeEach
+    public void setup() throws ResponseException {
+        facade.delete();
     }
 
     @AfterAll
@@ -26,7 +35,34 @@ public class ServerFacadeTests {
 
     @Test
     public void sampleTest() {
-        Assertions.assertTrue(true);
+        assertTrue(true);
+    }
+
+    @Test
+    void registerPos() throws Exception {
+        AuthData authData = (AuthData) facade.register("player1", "password", "p1@email.com");
+        assertTrue(authData.authToken().length() > 10);
+    }
+
+    @Test
+    void nullRegister() throws Exception {
+        assertThrows(Exception.class, () -> {
+            facade.register(null, "password", "p1@email.com");
+        });
+    }
+
+    @Test
+    void loginPos() throws Exception {
+        AuthData regData = (AuthData) facade.register("player1", "password", "p1@email.com");
+        AuthData authData = (AuthData) facade.login("player1", "password");
+        assertTrue(authData.authToken().length() > 10);
+    }
+
+    @Test
+    void loginNeg() throws Exception {
+        assertThrows(Exception.class, () -> {
+            facade.login(null, "password");
+        });
     }
 
 }

@@ -10,30 +10,31 @@ import java.io.*;
 public class ServerFacade {
     private String serverUrl;
 
-    public ServerFacade(String url){
-        serverUrl = url;
+    public ServerFacade(Integer port){
+        serverUrl = "http://localhost:" + port;
     }
 
     public Object register(String username, String password, String email) throws ResponseException {
         var path = "/user";
         UserData userData = new UserData(username, password, email);
-        return this.makeRequest("POST", path, userData, UserData.class);
+        return this.makeRequest("POST", path, null, userData, AuthData.class);
     }
 
     public Object login(String username, String password) throws ResponseException {
         var path = "/session";
         LoginRequest loginRequest = new LoginRequest(username, password);
-        return this.makeRequest("POST", path, loginRequest, LoginRequest.class);
+        return this.makeRequest("POST", path, null, loginRequest, AuthData.class);
     }
 
-    public void logout(String authToken) throws ResponseException { //TODO: needs authToken header? possibly
-        var path = String.format("/session/%s", authToken);
-        this.makeRequest("DELETE", path, null, null);
+    public void logout(String authToken) throws ResponseException {
+        var path = "/session";
+        AuthRequest authRequest = new AuthRequest(authToken);
+        this.makeRequest("DELETE", path, authToken, null, null);
     }
 
     public void delete() throws ResponseException {
         var path = "/db";
-        this.makeRequest("DELETE", path, null, null);
+        this.makeRequest("DELETE", path, null, null, null);
     }
 
     public void joinGame(String playerColor, Integer gameID) {
@@ -42,13 +43,14 @@ public class ServerFacade {
 
 
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, String authToken, Object request, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
+            writeHeader(authToken, http);
             writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);
@@ -60,7 +62,11 @@ public class ServerFacade {
         }
     }
 
-    //private static void writeHeader(Object )
+    private static void writeHeader(String authToken, HttpURLConnection http) {
+        if (authToken != null) {
+            http.addRequestProperty("authorization", authToken);
+        }
+    }
 
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {
         if (request != null) {
