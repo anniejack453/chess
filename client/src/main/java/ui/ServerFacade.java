@@ -28,7 +28,6 @@ public class ServerFacade {
 
     public void logout(String authToken) throws ResponseException {
         var path = "/session";
-        AuthRequest authRequest = new AuthRequest(authToken);
         this.makeRequest("DELETE", path, authToken, null, null);
     }
 
@@ -39,6 +38,7 @@ public class ServerFacade {
 
     public void joinGame(String playerColor, Integer gameID) {
         var path = "/game";
+
     }
 
 

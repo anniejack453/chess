@@ -65,4 +65,29 @@ public class ServerFacadeTests {
         });
     }
 
+    @Test
+    void logoutPos() throws Exception {
+        AuthData regData = (AuthData) facade.register("player1", "password", "p1@email.com");
+        assertDoesNotThrow(() -> {
+            facade.logout(regData.authToken());
+        });
+    }
+
+    @Test
+    void logoutNeg() throws Exception {
+        assertThrows(Exception.class, () -> {
+            facade.logout("doesNotExist");
+        });
+    }
+
+    @Test
+    void deletePos() throws Exception {
+        AuthData regData = (AuthData) facade.register("player1", "password", "p1@email.com");
+        AuthData moreData = (AuthData) facade.register("player2", "password2", "p2@email.com");
+        AuthData moreData2 = (AuthData) facade.register("player3", "password3", "p3@email.com");
+        assertDoesNotThrow(() -> {
+            facade.delete();
+        });
+    }
+
 }
