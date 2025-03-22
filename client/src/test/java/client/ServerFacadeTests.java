@@ -7,6 +7,8 @@ import org.junit.jupiter.api.*;
 import server.Server;
 import ui.ServerFacade;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -126,11 +128,15 @@ public class ServerFacadeTests {
     void listPos() throws Exception {
         AuthData regData = (AuthData) facade.register("player1", "password", "p1@email.com");
         CreateResult id = (CreateResult) facade.createGame(regData.authToken(),"hello");
-        assertDoesNotThrow(() -> {
-            facade.joinGame(regData.authToken(), "WHITE", id.gameID());
-        });
+        facade.joinGame(regData.authToken(), "WHITE", id.gameID());
+        Map gameList = (Map) facade.listGames(regData.authToken());
+        assertNotNull(gameList);
     }
 
-
-
+    @Test
+    void listNeg() throws Exception {
+        assertThrows(Exception.class, () -> {
+            facade.listGames("doesNotExist");
+        });
+    }
 }
