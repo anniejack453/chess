@@ -2,6 +2,7 @@ package client;
 
 import exception.ResponseException;
 import model.AuthData;
+import model.CreateResult;
 import org.junit.jupiter.api.*;
 import server.Server;
 import ui.ServerFacade;
@@ -89,5 +90,47 @@ public class ServerFacadeTests {
             facade.delete();
         });
     }
+
+    @Test
+    void createPos() throws Exception {
+        AuthData regData = (AuthData) facade.register("player1", "password", "p1@email.com");
+        CreateResult id = (CreateResult) facade.createGame(regData.authToken(),"hello");
+        assertEquals(1, id.gameID());
+    }
+
+    @Test
+    void createNeg() throws Exception {
+        assertThrows(Exception.class, () -> {
+            facade.createGame("doesNotExist", "hi");
+        });
+    }
+
+    @Test
+    void joinPos() throws Exception {
+        AuthData regData = (AuthData) facade.register("player1", "password", "p1@email.com");
+        CreateResult id = (CreateResult) facade.createGame(regData.authToken(),"hello");
+        assertDoesNotThrow(() -> {
+            facade.joinGame(regData.authToken(), "WHITE", id.gameID());
+        });
+    }
+
+    @Test
+    void joinNeg() throws Exception {
+        AuthData regData = (AuthData) facade.register("player1", "password", "p1@email.com");
+        assertThrows(Exception.class, () -> {
+            facade.joinGame(regData.authToken(), "BLACK", 1);
+        });
+    }
+
+    @Test
+    void listPos() throws Exception {
+        AuthData regData = (AuthData) facade.register("player1", "password", "p1@email.com");
+        CreateResult id = (CreateResult) facade.createGame(regData.authToken(),"hello");
+        assertDoesNotThrow(() -> {
+            facade.joinGame(regData.authToken(), "WHITE", id.gameID());
+        });
+    }
+
+
 
 }

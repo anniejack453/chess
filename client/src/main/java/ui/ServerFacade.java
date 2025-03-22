@@ -6,6 +6,7 @@ import model.*;
 
 import java.net.*;
 import java.io.*;
+import java.util.Map;
 
 public class ServerFacade {
     private String serverUrl;
@@ -36,9 +37,21 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, null, null, null);
     }
 
-    public void joinGame(String playerColor, Integer gameID) {
+    public Object createGame(String authToken, String gameName) throws ResponseException {
         var path = "/game";
+        CreateGameRequest createGameReq = new CreateGameRequest(gameName);
+        return this.makeRequest("POST", path, authToken, createGameReq, CreateResult.class);
+    }
 
+    public void joinGame(String authToken, String playerColor, Integer gameID) throws ResponseException {
+        var path = "/game";
+        JoinRequest joinReq = new JoinRequest(playerColor, gameID);
+        this.makeRequest("PUT", path, authToken, joinReq, null);
+    }
+
+    public Object listGames(String authToken) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("GET", path, authToken, null, Map.class);
     }
 
 
