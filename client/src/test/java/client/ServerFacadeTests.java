@@ -35,7 +35,6 @@ public class ServerFacadeTests {
         server.stop();
     }
 
-
     @Test
     public void sampleTest() {
         assertTrue(true);

@@ -9,7 +9,7 @@ import java.io.*;
 import java.util.Map;
 
 public class ServerFacade {
-    private String serverUrl;
+    private final String serverUrl;
 
     public ServerFacade(Integer port){
         serverUrl = "http://localhost:" + port;
@@ -114,7 +114,6 @@ public class ServerFacade {
         }
         return response;
     }
-
 
     private boolean isSuccessful(int status) {
         return status / 100 == 2;
