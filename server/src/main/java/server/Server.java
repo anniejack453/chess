@@ -1,6 +1,7 @@
 package server;
 
 import dataaccess.*;
+import exception.ResponseException;
 import org.mindrot.jbcrypt.BCrypt;
 import service.*;
 import spark.*;
@@ -70,7 +71,7 @@ public class Server extends EncoderDecoder {
             if (userData == null){
                 userData = userService.createUser(registerReq);
             } else {
-                return throwError403(registerRequest, registerResponse);
+                return throwError403(registerRequest,registerResponse);
             }
         } else {
             return throwError400(registerRequest,registerResponse);
@@ -193,7 +194,7 @@ public class Server extends EncoderDecoder {
         res.type("application/json");
         res.status(403);
         res.body(body);
-        return body;
+        return res;
     }
 
     private String readHashedPasswordFromDatabase(String username) throws DataAccessException {

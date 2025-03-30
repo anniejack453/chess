@@ -54,6 +54,14 @@ public class ServerFacadeTests {
     }
 
     @Test
+    void sameRegister() throws Exception {
+        facade.register("a", "password", "p1@email.com");
+        assertThrows(Exception.class, () -> {
+            facade.register("a", "password", "p1@email.com");
+        });
+    }
+
+    @Test
     void loginPos() throws Exception {
         AuthData regData = (AuthData) facade.register("player1", "password", "p1@email.com");
         AuthData authData = (AuthData) facade.login("player1", "password");
