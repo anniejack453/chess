@@ -55,9 +55,9 @@ public class ServerFacadeTests {
 
     @Test
     void sameRegister() throws Exception {
-        facade.register("a", "password", "p1@email.com");
+        facade.register("user", "password", "p1@email.com");
         assertThrows(Exception.class, () -> {
-            facade.register("a", "password", "p1@email.com");
+            facade.register("user", "password", "p1@email.com");
         });
     }
 

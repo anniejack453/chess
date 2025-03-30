@@ -194,7 +194,7 @@ public class Server extends EncoderDecoder {
         res.type("application/json");
         res.status(403);
         res.body(body);
-        return res;
+        return res.body();
     }
 
     private String readHashedPasswordFromDatabase(String username) throws DataAccessException {

@@ -1,8 +1,15 @@
 package ui;
 
+import exception.ResponseException;
+import model.AuthData;
+import model.CreateResult;
+
+import java.util.Arrays;
+
 public class ChessClient {
     private final ServerFacade server;
     private State state = State.PRELOGIN;
+    private String authToken = null;
 
     public ChessClient(Integer port) {
         server = new ServerFacade(port);
@@ -28,7 +35,61 @@ public class ChessClient {
                     """;
         }
         return """
-                
+                 - move - make chess move
+                 - help - list possible options
+                 - quit - exit program
                 """;
+    }
+
+    public String eval(String input) {
+        try {
+            var tokens = input.toLowerCase().split(" ");
+            var cmd = (tokens.length > 0) ? tokens[0] : "help";
+            var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            return switch (cmd) {
+                case "register" -> register(params);
+                case "create" -> create(authToken, params);
+                case "quit" -> "quit";
+                default -> help();
+            };
+        } catch (ResponseException ex) {
+            return ex.getMessage();
+        }
+    }
+
+    public String create(String authToken, String... params) throws ResponseException {
+        assertPostLogin();
+        if (params.length == 1) {
+            var game = (CreateResult) server.createGame(authToken, params[0]);
+            return String.format("Game ID: %s", game.gameID());
+        }
+        throw new ResponseException(400, "Expected: <GameName>");
+    }
+
+    public String register(String... params) throws ResponseException {
+        if (params.length == 3) {
+            var username = params[0];
+            var password = params[1];
+            var email = params[2];
+            if (!username.isEmpty() && !password.isEmpty() && email.contains("@")) {
+                AuthData authData = (AuthData) server.register(params[0], params[1], params[2]);
+                authToken = authData.authToken();
+                state = State.POSTLOGIN;
+                return String.format("You signed in as %s.", authData.username());
+            }
+        }
+        throw new ResponseException(400, "Expected: <username> <password> <email>");
+    }
+
+    private void assertPostLogin() throws ResponseException {
+        if (state != State.POSTLOGIN) {
+            throw new ResponseException(400, "You must sign in");
+        }
+    }
+
+    private void assertPostJoinGame() throws ResponseException {
+        if (state != State.POSTJOINGAME) {
+            throw new ResponseException(400, "You must join a game");
+        }
     }
 }
