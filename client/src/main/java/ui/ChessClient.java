@@ -53,6 +53,7 @@ public class ChessClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "register" -> register(params);
+                case "login" -> login(params);
                 case "create" -> create(authToken, params);
                 case "list" -> listGames(authToken);
                 case "quit" -> "quit";
@@ -61,6 +62,35 @@ public class ChessClient {
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
+    }
+
+    public String login(String... params) throws ResponseException {
+        if (params.length == 2) {
+            var username = params[0];
+            var password = params[1];
+            if (!username.isEmpty() && !password.isEmpty()) {
+                AuthData authData = (AuthData) server.login(username, password);
+                authToken = authData.authToken();
+                state = State.POSTLOGIN;
+                return String.format("You signed in as %s.", authData.username());
+            }
+        }
+        throw new ResponseException(400, "Expected: <username> <password>");
+    }
+
+    public String register(String... params) throws ResponseException {
+        if (params.length == 3) {
+            var username = params[0];
+            var password = params[1];
+            var email = params[2];
+            if (!username.isEmpty() && !password.isEmpty() && email.contains("@")) {
+                AuthData authData = (AuthData) server.register(params[0], params[1], params[2]);
+                authToken = authData.authToken();
+                state = State.POSTLOGIN;
+                return String.format("You signed in as %s.", authData.username());
+            }
+        }
+        throw new ResponseException(400, "Expected: <username> <password> <email>");
     }
 
     private String listGames(String authToken) throws ResponseException {
@@ -82,21 +112,6 @@ public class ChessClient {
             return String.format("Game ID: %s", game.gameID());
         }
         throw new ResponseException(400, "Expected: <GameName>");
-    }
-
-    public String register(String... params) throws ResponseException {
-        if (params.length == 3) {
-            var username = params[0];
-            var password = params[1];
-            var email = params[2];
-            if (!username.isEmpty() && !password.isEmpty() && email.contains("@")) {
-                AuthData authData = (AuthData) server.register(params[0], params[1], params[2]);
-                authToken = authData.authToken();
-                state = State.POSTLOGIN;
-                return String.format("You signed in as %s.", authData.username());
-            }
-        }
-        throw new ResponseException(400, "Expected: <username> <password> <email>");
     }
 
     private void assertPostLogin() throws ResponseException {
