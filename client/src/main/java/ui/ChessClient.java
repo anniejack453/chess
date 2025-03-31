@@ -1,10 +1,15 @@
 package ui;
 
+import com.google.gson.Gson;
 import exception.ResponseException;
 import model.AuthData;
 import model.CreateResult;
+import model.GameData;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class ChessClient {
     private final ServerFacade server;
@@ -49,12 +54,25 @@ public class ChessClient {
             return switch (cmd) {
                 case "register" -> register(params);
                 case "create" -> create(authToken, params);
+                case "list" -> listGames(authToken);
                 case "quit" -> "quit";
                 default -> help();
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
+    }
+
+    private String listGames(String authToken) throws ResponseException {
+        assertPostLogin();
+        var games = (Map) server.listGames(authToken);
+        ArrayList gameVal = (ArrayList<GameData>) games.get("games");
+        var result = new StringBuilder();
+        var gson = new Gson();
+        for (var game : gameVal) {
+            result.append(gson.toJson(game)).append('\n');
+        }
+        return result.toString();
     }
 
     public String create(String authToken, String... params) throws ResponseException {
