@@ -54,6 +54,7 @@ public class ChessClient {
             return switch (cmd) {
                 case "register" -> register(params);
                 case "login" -> login(params);
+                case "logout" -> logout(authToken);
                 case "create" -> create(authToken, params);
                 case "list" -> listGames(authToken);
                 case "quit" -> "quit";
@@ -64,7 +65,15 @@ public class ChessClient {
         }
     }
 
+    private String logout(String authToken) throws ResponseException {
+        assertPostLogin();
+        server.logout(authToken);
+        state = State.PRELOGIN;
+        return "You have been logged out.";
+    }
+
     public String login(String... params) throws ResponseException {
+        assertPreLogin();
         if (params.length == 2) {
             var username = params[0];
             var password = params[1];
@@ -79,6 +88,7 @@ public class ChessClient {
     }
 
     public String register(String... params) throws ResponseException {
+        assertPreLogin();
         if (params.length == 3) {
             var username = params[0];
             var password = params[1];
@@ -116,13 +126,19 @@ public class ChessClient {
 
     private void assertPostLogin() throws ResponseException {
         if (state != State.POSTLOGIN) {
-            throw new ResponseException(400, "You must sign in");
+            throw new ResponseException(400, "You must sign in.");
+        }
+    }
+
+    private void assertPreLogin() throws ResponseException {
+        if (state != State.PRELOGIN) {
+            throw new ResponseException(400, "You are already signed in.");
         }
     }
 
     private void assertPostJoinGame() throws ResponseException {
         if (state != State.POSTJOINGAME) {
-            throw new ResponseException(400, "You must join a game");
+            throw new ResponseException(400, "You must join a game.");
         }
     }
 }
