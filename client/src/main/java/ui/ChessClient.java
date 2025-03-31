@@ -6,15 +6,13 @@ import model.AuthData;
 import model.CreateResult;
 import model.GameData;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ChessClient {
     private final ServerFacade server;
     private State state = State.PRELOGIN;
     private String authToken = null;
+    private Map<Integer, Map> gameList = new HashMap<>();
 
     public ChessClient(Integer port) {
         server = new ServerFacade(port);
@@ -66,11 +64,26 @@ public class ChessClient {
         }
     }
 
-    private String joinGame(String authToken, String[] params) throws ResponseException {//TODO: finish
+    /*
+    turn string into map to query??
+    enter in number from listGames, white or black. make white or black all caps, use authtoken to get username
+    from authdata to enter as player name. call joinGame.
+    set postJoinGame. call class print board. white perspective if white, black perspective if black
+    */
+
+    private String joinGame(String authToken, String[] params) throws ResponseException {
         assertPostLogin();
         if (params.length == 2) {
-            var gameID = params[0];
-            var playerColor = params[1];
+            int gameNum = Integer.parseInt(params[0]);
+            var playerColor = params[1].toUpperCase();
+            var listGames = gameList;
+            var game = listGames.get(gameNum);
+            Double gameIDDouble = (Double) game.get("gameID");
+            int gameID = (int) Math.round(gameIDDouble);
+            server.joinGame(authToken, playerColor, gameID);
+            state = State.POSTJOINGAME;
+            // add in print board functionality
+            return String.format("You joined game as %s.", playerColor);
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
     }
@@ -113,20 +126,21 @@ public class ChessClient {
         throw new ResponseException(400, "Expected: <username> <password> <email>");
     }
 
-    private String listGames(String authToken) throws ResponseException {
+    public String listGames(String authToken) throws ResponseException {
         assertPostLogin();
         var games = (Map) server.listGames(authToken);
-        var gameList = new StringBuilder();
+        var gameString = new StringBuilder();
         ArrayList gameVal = (ArrayList<GameData>) games.get("games");
         for (int i=0; i<gameVal.size(); i++) {
             var gameMap = (Map) gameVal.get(i);
             var gameName = gameMap.get("gameName");
             var whiteUsername = gameMap.get("whiteUsername");
             var blackUsername = gameMap.get("blackUsername");
-            gameList.append(String.format("%d. %s - Player W: %s Player B: %s\n", i+1, gameName, whiteUsername, blackUsername));
+            gameString.append(String.format("%d. %s - Player W: %s Player B: %s\n", i+1, gameName, whiteUsername, blackUsername));
+            gameList.put(i+1,gameMap);
         }
-        if (!gameList.isEmpty()) {
-            return gameList.toString();
+        if (!gameString.isEmpty()) {
+            return gameString.toString();
         }
         return "There are no games currently.\n";
     }
