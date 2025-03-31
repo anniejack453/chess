@@ -57,12 +57,22 @@ public class ChessClient {
                 case "logout" -> logout(authToken);
                 case "create" -> create(authToken, params);
                 case "list" -> listGames(authToken);
+                case "join" -> joinGame(authToken, params);
                 case "quit" -> "quit";
                 default -> help();
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
+    }
+
+    private String joinGame(String authToken, String[] params) throws ResponseException {//TODO: finish
+        assertPostLogin();
+        if (params.length == 2) {
+            var gameID = params[0];
+            var playerColor = params[1];
+        }
+        throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
     }
 
     private String logout(String authToken) throws ResponseException {
@@ -106,13 +116,19 @@ public class ChessClient {
     private String listGames(String authToken) throws ResponseException {
         assertPostLogin();
         var games = (Map) server.listGames(authToken);
+        var gameList = new StringBuilder();
         ArrayList gameVal = (ArrayList<GameData>) games.get("games");
-        var result = new StringBuilder();
-        var gson = new Gson();
-        for (var game : gameVal) {
-            result.append(gson.toJson(game)).append('\n');
+        for (int i=0; i<gameVal.size(); i++) {
+            var gameMap = (Map) gameVal.get(i);
+            var gameName = gameMap.get("gameName");
+            var whiteUsername = gameMap.get("whiteUsername");
+            var blackUsername = gameMap.get("blackUsername");
+            gameList.append(String.format("%d. %s - Player W: %s Player B: %s\n", i+1, gameName, whiteUsername, blackUsername));
         }
-        return result.toString();
+        if (!gameList.isEmpty()) {
+            return gameList.toString();
+        }
+        return "There are no games currently.\n";
     }
 
     public String create(String authToken, String... params) throws ResponseException {
