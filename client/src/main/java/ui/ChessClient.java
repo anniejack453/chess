@@ -56,6 +56,7 @@ public class ChessClient {
                 case "create" -> create(authToken, params);
                 case "list" -> listGames(authToken);
                 case "join" -> joinGame(authToken, params);
+                case "observe" -> observeGame(authToken, params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -86,6 +87,19 @@ public class ChessClient {
             return String.format("You joined game as %s.", playerColor);
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
+    }
+
+    private String observeGame(String authToken, String[] params) throws ResponseException {
+        assertPostLogin();
+        if (params.length == 1) {
+            int gameNum = Integer.parseInt(params[0]);
+            var listGames = gameList;
+            var game = listGames.get(gameNum);
+            //print board of game
+            state = State.POSTJOINGAME;
+            return String.format("You are observing game %d", gameNum);
+        }
+        throw new ResponseException(400, "Expected: <ID>");
     }
 
     private String logout(String authToken) throws ResponseException {
