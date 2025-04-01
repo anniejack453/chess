@@ -6,6 +6,7 @@ import model.*;
 
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Map;
 
 public class ServerFacade {
@@ -51,7 +52,7 @@ public class ServerFacade {
 
     public Object listGames(String authToken) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("GET", path, authToken, null, Map.class);
+        return this.makeRequest("GET", path, authToken, null, ListGamesResult.class);
     }
 
     private <T> T makeRequest(String method, String path, String authToken, Object request, Class<T> responseClass) throws ResponseException {

@@ -1,10 +1,14 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.AuthData;
 import model.CreateResult;
 import model.GameData;
+import model.ListGamesResult;
+import ui.PrintBoard;
 
 import java.util.*;
 
@@ -12,7 +16,8 @@ public class ChessClient {
     private final ServerFacade server;
     private State state = State.PRELOGIN;
     private String authToken = null;
-    private Map<Integer, Map> gameList = new HashMap<>();
+    private Map<Integer, GameData> gameList = new HashMap<>();
+    private PrintBoard board;
 
     public ChessClient(Integer port) {
         server = new ServerFacade(port);
@@ -74,15 +79,26 @@ public class ChessClient {
 
     private String joinGame(String authToken, String[] params) throws ResponseException {
         assertPostLogin();
+        int gameNum;
         if (params.length == 2) {
-            int gameNum = Integer.parseInt(params[0]);
+            try {
+                gameNum = Integer.parseInt(params[0]);
+            } catch (Exception e) {
+                return "Need to give a list number.\n";
+            }
             var playerColor = params[1].toUpperCase();
+            ChessGame.TeamColor teamColor;
+            if (playerColor.equals("WHITE")) {
+                teamColor = ChessGame.TeamColor.WHITE;
+            } else {
+                teamColor = ChessGame.TeamColor.BLACK;
+            }
             var listGames = gameList;
-            var game = listGames.get(gameNum);
-            Double gameIDDouble = (Double) game.get("gameID");
-            int gameID = (int) Math.round(gameIDDouble);
+            var gameMap = listGames.get(gameNum);
+            int gameID = gameMap.gameID();
             server.joinGame(authToken, playerColor, gameID);
             state = State.POSTJOINGAME;
+            board = new PrintBoard(gameMap.game(), teamColor);
             // add in print board functionality
             return String.format("You joined game as %s.", playerColor);
         }
@@ -142,16 +158,16 @@ public class ChessClient {
 
     public String listGames(String authToken) throws ResponseException {
         assertPostLogin();
-        var games = (Map) server.listGames(authToken);
+        ListGamesResult games = (ListGamesResult) server.listGames(authToken);
         var gameString = new StringBuilder();
-        ArrayList gameVal = (ArrayList<GameData>) games.get("games");
+        ArrayList gameVal = (ArrayList<GameData>) games.games();
         for (int i=0; i<gameVal.size(); i++) {
-            var gameMap = (Map) gameVal.get(i);
-            var gameName = gameMap.get("gameName");
-            var whiteUsername = gameMap.get("whiteUsername");
-            var blackUsername = gameMap.get("blackUsername");
+            var gameData = (GameData) gameVal.get(i);
+            var gameName = gameData.gameName();
+            var whiteUsername = gameData.whiteUsername();
+            var blackUsername = gameData.blackUsername();
             gameString.append(String.format("%d. %s - Player W: %s Player B: %s\n", i+1, gameName, whiteUsername, blackUsername));
-            gameList.put(i+1,gameMap);
+            gameList.put(i+1,gameData);
         }
         if (!gameString.isEmpty()) {
             return gameString.toString();

@@ -167,7 +167,7 @@ public class Server extends EncoderDecoder {
         if (!Objects.equals(authData.authToken(), listReq)){
             return throwError401(req, res);
         }
-        var gameList = gameService.listGames();
+        Collection<GameData> gameList = gameService.listGames();
         var body = encode(Map.of("games",gameList));
         res.body(body);
         return body;
