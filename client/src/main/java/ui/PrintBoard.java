@@ -25,6 +25,8 @@ public class PrintBoard {
         drawHeaders(out);
         drawChessBoard(out);
         drawHeaders(out);
+        out.println();
+        out.print(RESET_TEXT_COLOR);
     }
 
     private void drawHeaders(PrintStream out) {
@@ -83,66 +85,10 @@ public class PrintBoard {
                 out.print("  ");
                 if (playerColor == ChessGame.TeamColor.WHITE) {
                     ChessPiece piece = board.getPiece(new ChessPosition(9-boardRow,boardCol));
-                    if (piece != null){
-                        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                            out.print(SET_TEXT_COLOR_RED);
-                        } else {
-                            out.print(SET_TEXT_COLOR_BLUE);
-                        }
-                        switch (piece.getPieceType()) {
-                            case KING:
-                                out.print("K");
-                                break;
-                            case QUEEN:
-                                out.print("Q");
-                                break;
-                            case KNIGHT:
-                                out.print("N");
-                                break;
-                            case BISHOP:
-                                out.print("B");
-                                break;
-                            case ROOK:
-                                out.print("R");
-                                break;
-                            case PAWN:
-                                out.print("P");
-                                break;
-                        }
-                    } else {
-                        out.print(" ");
-                    }
+                    determinePiece(out, piece);
                 } else {
                     ChessPiece piece = board.getPiece(new ChessPosition(boardRow,9-boardCol));
-                    if (piece != null){
-                        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                            out.print(SET_TEXT_COLOR_RED);
-                        } else {
-                            out.print(SET_TEXT_COLOR_BLUE);
-                        }
-                        switch (piece.getPieceType()) {
-                            case KING:
-                                out.print("K");
-                                break;
-                            case QUEEN:
-                                out.print("Q");
-                                break;
-                            case KNIGHT:
-                                out.print("N");
-                                break;
-                            case BISHOP:
-                                out.print("B");
-                                break;
-                            case ROOK:
-                                out.print("R");
-                                break;
-                            case PAWN:
-                                out.print("P");
-                                break;
-                        }
-                    } else {
-                        out.print(" ");
-                    }
+                    determinePiece(out, piece);
                 }
                 out.print("  ");
             }
@@ -162,6 +108,38 @@ public class PrintBoard {
         }
         out.print(RESET_BG_COLOR);
         out.println();
+    }
+
+    private void determinePiece(PrintStream out, ChessPiece piece) {
+        if (piece != null){
+            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                out.print(SET_TEXT_COLOR_RED);
+            } else {
+                out.print(SET_TEXT_COLOR_BLUE);
+            }
+            switch (piece.getPieceType()) {
+                case KING:
+                    out.print("K");
+                    break;
+                case QUEEN:
+                    out.print("Q");
+                    break;
+                case KNIGHT:
+                    out.print("N");
+                    break;
+                case BISHOP:
+                    out.print("B");
+                    break;
+                case ROOK:
+                    out.print("R");
+                    break;
+                case PAWN:
+                    out.print("P");
+                    break;
+            }
+        } else {
+            out.print(" ");
+        }
     }
 
     private void endRowOfSquares(PrintStream out) {

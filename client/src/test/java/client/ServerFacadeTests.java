@@ -136,7 +136,7 @@ public class ServerFacadeTests {
         AuthData regData = (AuthData) facade.register("player1", "password", "p1@email.com");
         CreateResult id = (CreateResult) facade.createGame(regData.authToken(),"hello");
         facade.joinGame(regData.authToken(), "WHITE", id.gameID());
-        Map gameList = (Map) facade.listGames(regData.authToken());
+        var gameList = facade.listGames(regData.authToken());
         assertNotNull(gameList);
     }
 

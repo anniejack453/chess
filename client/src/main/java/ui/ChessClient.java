@@ -1,14 +1,11 @@
 package ui;
 
-import chess.ChessBoard;
 import chess.ChessGame;
-import com.google.gson.Gson;
 import exception.ResponseException;
 import model.AuthData;
 import model.CreateResult;
 import model.GameData;
 import model.ListGamesResult;
-import ui.PrintBoard;
 
 import java.util.*;
 
@@ -70,13 +67,6 @@ public class ChessClient {
         }
     }
 
-    /*
-    turn string into map to query??
-    enter in number from listGames, white or black. make white or black all caps, use authtoken to get username
-    from authdata to enter as player name. call joinGame.
-    set postJoinGame. call class print board. white perspective if white, black perspective if black
-    */
-
     private String joinGame(String authToken, String[] params) throws ResponseException {
         assertPostLogin();
         int gameNum;
@@ -86,34 +76,43 @@ public class ChessClient {
             } catch (Exception e) {
                 return "Need to give a list number.\n";
             }
-            var playerColor = params[1].toUpperCase();
-            ChessGame.TeamColor teamColor;
-            if (playerColor.equals("WHITE")) {
-                teamColor = ChessGame.TeamColor.WHITE;
-            } else {
-                teamColor = ChessGame.TeamColor.BLACK;
+            if (gameList.containsKey(gameNum)) {
+                var playerColor = params[1].toUpperCase();
+                ChessGame.TeamColor teamColor;
+                if (playerColor.equals("WHITE")) {
+                    teamColor = ChessGame.TeamColor.WHITE;
+                } else {
+                    teamColor = ChessGame.TeamColor.BLACK;
+                }
+                var listGames = gameList;
+                var gameMap = listGames.get(gameNum);
+                int gameID = gameMap.gameID();
+                server.joinGame(authToken, playerColor, gameID);
+                board = new PrintBoard(gameMap.game(), teamColor);
+                return String.format("You joined game as %s.", playerColor);
             }
-            var listGames = gameList;
-            var gameMap = listGames.get(gameNum);
-            int gameID = gameMap.gameID();
-            server.joinGame(authToken, playerColor, gameID);
-            state = State.POSTJOINGAME;
-            board = new PrintBoard(gameMap.game(), teamColor);
-            // add in print board functionality
-            return String.format("You joined game as %s.", playerColor);
+            throw new ResponseException(400, "Number needs to be in list");
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
     }
 
     private String observeGame(String authToken, String[] params) throws ResponseException {
         assertPostLogin();
+        int gameNum;
         if (params.length == 1) {
-            int gameNum = Integer.parseInt(params[0]);
-            var listGames = gameList;
-            var game = listGames.get(gameNum);
-            //print board of game
-            state = State.POSTJOINGAME;
-            return String.format("You are observing game %d", gameNum);
+            try {
+                gameNum = Integer.parseInt(params[0]);
+            } catch (Exception e) {
+                return "Need to give a list number.\n";
+            }
+            if (gameList.containsKey(gameNum)) {
+                var listGames = gameList;
+                var gameMap = listGames.get(gameNum);
+                int gameID = gameMap.gameID();
+                server.joinGame(authToken, "WHITE", gameID);
+                board = new PrintBoard(gameMap.game(), ChessGame.TeamColor.WHITE);
+                return String.format("You are observing game %d", gameNum);
+            }
         }
         throw new ResponseException(400, "Expected: <ID>");
     }
@@ -166,7 +165,7 @@ public class ChessClient {
             var gameName = gameData.gameName();
             var whiteUsername = gameData.whiteUsername();
             var blackUsername = gameData.blackUsername();
-            gameString.append(String.format("%d. %s - Player W: %s Player B: %s\n", i+1, gameName, whiteUsername, blackUsername));
+            gameString.append(String.format("%d. %s - Player White: %s Player Black: %s\n", i+1, gameName, whiteUsername, blackUsername));
             gameList.put(i+1,gameData);
         }
         if (!gameString.isEmpty()) {
@@ -193,12 +192,6 @@ public class ChessClient {
     private void assertPreLogin() throws ResponseException {
         if (state != State.PRELOGIN) {
             throw new ResponseException(400, "You are already signed in.");
-        }
-    }
-
-    private void assertPostJoinGame() throws ResponseException {
-        if (state != State.POSTJOINGAME) {
-            throw new ResponseException(400, "You must join a game.");
         }
     }
 }
