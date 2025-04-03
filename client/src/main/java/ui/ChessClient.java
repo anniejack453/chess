@@ -109,7 +109,7 @@ public class ChessClient {
                 var listGames = gameList;
                 var gameMap = listGames.get(gameNum);
                 int gameID = gameMap.gameID();
-                server.joinGame(authToken, "WHITE", gameID);
+                //server.joinGame(authToken, "WHITE", gameID);
                 board = new PrintBoard(gameMap.game(), ChessGame.TeamColor.WHITE);
                 return String.format("You are observing game %d", gameNum);
             }
