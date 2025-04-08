@@ -6,6 +6,9 @@ import model.AuthData;
 import model.CreateResult;
 import model.GameData;
 import model.ListGamesResult;
+import websocket.ServerMessageHandler;
+import websocket.WebSocketFacade;
+import websocket.messages.*;
 
 import java.util.*;
 
@@ -15,9 +18,12 @@ public class ChessClient {
     private String authToken = null;
     private Map<Integer, GameData> gameList = new HashMap<>();
     private PrintBoard board;
+    private final ServerMessageHandler messageHandler;
+    private WebSocketFacade ws;
 
-    public ChessClient(Integer port) {
+    public ChessClient(Integer port, ServerMessageHandler messageHandler) {
         server = new ServerFacade(port);
+        this.messageHandler = messageHandler;
     }
 
     public String help() {

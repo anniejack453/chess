@@ -1,12 +1,15 @@
 package ui;
 
+import websocket.ServerMessageHandler;
+import websocket.messages.ServerMessage;
+
 import java.util.Scanner;
 
-public class Repl {
+public class Repl implements ServerMessageHandler {
     private ChessClient client;
 
-    public Repl(Integer port) {
-        client = new ChessClient(port);
+    public Repl(Integer port){
+        client = new ChessClient(port, this);
     }
 
     public void run() {
@@ -27,4 +30,8 @@ public class Repl {
         System.out.println();
     }
 
+    @Override
+    public void notify(ServerMessage message) { //TODO: make message formats
+
+    }
 }
