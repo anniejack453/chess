@@ -41,8 +41,11 @@ public class ChessClient {
         }
         return """
                  - move - make chess move
+                 - redraw - redraw chess board
+                 - highlight - highlight legal moves
+                 - resign - forfeit game
                  - help - list possible options
-                 - quit - exit program
+                 - leave - leave game
                 """;
     }
 
@@ -109,7 +112,6 @@ public class ChessClient {
                 var listGames = gameList;
                 var gameMap = listGames.get(gameNum);
                 int gameID = gameMap.gameID();
-                //server.joinGame(authToken, "WHITE", gameID);
                 board = new PrintBoard(gameMap.game(), ChessGame.TeamColor.WHITE);
                 return String.format("You are observing game %d", gameNum);
             }
