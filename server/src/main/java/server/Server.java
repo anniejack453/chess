@@ -9,17 +9,20 @@ import com.google.gson.Gson;
 import java.util.*;
 import handler.EncoderDecoder;
 import model.*;
+import websocket.WebSocketHandler;
 
 public class Server extends EncoderDecoder {
     private UserService userService;
     private AuthService authService;
     private GameService gameService;
+    private WebSocketHandler webSocketHandler;
 
     public Server() {
         try {
             userService = new UserService(new SQLUserDAO());
             authService = new AuthService(new SQLAuthDAO());
             gameService = new GameService(new SQLGameDAO());
+            webSocketHandler = new WebSocketHandler();
         } catch (DataAccessException e) {
             System.out.println("Error");
         }
@@ -29,6 +32,8 @@ public class Server extends EncoderDecoder {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/ws", webSocketHandler);
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user",this::register);
@@ -112,7 +117,7 @@ public class Server extends EncoderDecoder {
         return Map.of();
     }
 
-    private Object joinGame(Request req, Response res) throws Exception {
+    private Object joinGame(Request req, Response res) throws Exception { //TODO: add websocket
         String authReq = decodeHeader(req, AuthRequest.class);
         JoinRequest joinReq = (JoinRequest) decode(req, JoinRequest.class);
         var authData = authService.getAuth(authReq);
