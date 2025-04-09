@@ -88,7 +88,7 @@ public class ChessClient {
 
     private String move(String[] params) throws ResponseException {
         assertPostGameJoin();
-
+        return "";
     }
 
     private String redrawBoard() throws ResponseException {
