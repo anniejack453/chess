@@ -45,7 +45,8 @@ public class WebSocketHandler {
         connections.add(username, command.getGameID(), session);
         var gameName = gameDAO.getGameID(command.getGameID());
         var chess = gameDAO.getGameData(gameName);
-        var message = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, "hi");
+        var notif = String.format("%s has joined the game", username);
+        var message = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
         var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess);
         connections.broadcastAll(username, command.getGameID(), message);
     }
