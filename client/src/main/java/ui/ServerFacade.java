@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class ServerFacade {
-    private final String serverUrl;
+    public final String serverUrl;
 
     public ServerFacade(Integer port){
         serverUrl = "http://localhost:" + port;

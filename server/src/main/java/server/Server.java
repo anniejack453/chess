@@ -22,7 +22,7 @@ public class Server extends EncoderDecoder {
             userService = new UserService(new SQLUserDAO());
             authService = new AuthService(new SQLAuthDAO());
             gameService = new GameService(new SQLGameDAO());
-            webSocketHandler = new WebSocketHandler();
+            webSocketHandler = new WebSocketHandler(new SQLAuthDAO(), new SQLGameDAO()); //TODO: could cause issues
         } catch (DataAccessException e) {
             System.out.println("Error");
         }
@@ -132,6 +132,7 @@ public class Server extends EncoderDecoder {
             return throwError400(req,res);
         }
         GameData gameUpdate = gameService.joinGame(gameName, joinReq.playerColor(), authData.username());
+        //webSocketHandler.connect(authData.username(), joinReq.gameID(), session);
         if (gameUpdate == null && !Objects.equals(joinReq.playerColor(), "WHITE") && !Objects.equals(joinReq.playerColor(), "BLACK")){
             return throwError400(req,res);
         } else if (gameUpdate == null && joinReq.playerColor().equals("BLACK")){

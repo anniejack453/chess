@@ -3,6 +3,7 @@ package websocket;
 import com.google.gson.Gson;
 import dataaccess.*;
 import exception.ResponseException;
+import model.AuthData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -14,15 +15,46 @@ import java.util.Timer;
 
 @WebSocket
 public class WebSocketHandler {
+    private final AuthDAO authDAO;
+    private final GameDAO gameDAO;
+
 
     private final ConnectionManager connections = new ConnectionManager();
 
+    public WebSocketHandler(AuthDAO authDAO, GameDAO gameDAO) {
+        this.authDAO = authDAO;
+        this.gameDAO = gameDAO;
+    }
+
     @OnWebSocketMessage
-    public void onMessage(Session session, String message) throws IOException {
-//        Action action = new Gson().fromJson(message, Action.class);
-//        switch (action.type()) {
-//            case ENTER -> enter(action.visitorName(), session);
-//            case EXIT -> exit(action.visitorName());
-//        }
+    public void onMessage(Session session, String message) throws Exception {
+        try {
+            UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+            String username = getUsername(command.getAuthToken());
+            switch (command.getCommandType()) {
+                case CONNECT -> connect(username, command, session);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            var error = new ServerMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
+            session.getRemote().sendString(new Gson().toJson(error));
+        }
+    }
+
+    private void connect(String username, UserGameCommand command, Session session) throws IOException, DataAccessException {
+        connections.add(username, command.getGameID(), session);
+        var gameName = gameDAO.getGameID(command.getGameID());
+        var chess = gameDAO.getGameData(gameName);
+        var message = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, "hi");
+        var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess);
+        connections.broadcastAll(username, command.getGameID(), message);
+    }
+
+    private String getUsername(String authToken) throws Exception {
+        AuthData authData = authDAO.getUserFromAuth(authToken);
+        if (authData == null) {
+            throw new Exception("Incorrect authToken");
+        }
+        return authData.username();
     }
 }

@@ -48,7 +48,7 @@ public class ChessClient {
                     """;
         } else if (state == State.POSTJOINGAME) {
             return """
-                    - move - make chess move
+                    - move <current position> <new position> - make chess move
                     - redraw - redraw chess board
                     - highlight - highlight legal moves
                     - resign - forfeit game
@@ -124,6 +124,8 @@ public class ChessClient {
                 int gameID = gameMap.gameID();
                 chess = gameMap.game();
                 server.joinGame(authToken, playerColor, gameID);
+                ws = new WebSocketFacade(server.serverUrl, messageHandler);
+                ws.joinGame(authToken, gameID);
                 board = new PrintBoard(chess, teamColor);
                 return String.format("You joined game as %s.", playerColor);
             }
