@@ -21,6 +21,7 @@ import java.util.Timer;
 public class WebSocketHandler {
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
+    private WebSocketState state = WebSocketState.GAMEPLAY;
 
 
     private final ConnectionManager connections = new ConnectionManager();
@@ -51,14 +52,16 @@ public class WebSocketHandler {
     }
 
     private void resign(String username, UserGameCommand command, Session session) throws Exception {
+        assertPlaying();
         var gameName = gameDAO.getGameID(command.getGameID());
-        if (command.getIdentity() != UserGameCommand.IdentityType.PLAYER) {
+        if (command.getIdentity() == UserGameCommand.IdentityType.OBSERVER) {
             throw new Exception("Observer cannot resign");
         }
         var notif = String.format("%s has resigned", username);
         if (gameName != null) {
             var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
             connections.broadcastResign(command.getGameID(), message);
+            state = WebSocketState.RESIGNED;
         } else {
             throw new DataAccessException("Invalid game ID");
         }
@@ -79,7 +82,8 @@ public class WebSocketHandler {
         }
     }
 
-    private void makeMove(String username, UserGameCommand command, Session session) {
+    private void makeMove(String username, UserGameCommand command, Session session) throws Exception {
+        assertPlaying();
 
     }
 
@@ -89,5 +93,11 @@ public class WebSocketHandler {
             throw new Exception("Incorrect authToken");
         }
         return authData.username();
+    }
+
+    private void assertPlaying() throws Exception{
+        if (state == WebSocketState.RESIGNED) {
+            throw new Exception("You are resigned. Gameplay has ended");
+        }
     }
 }
