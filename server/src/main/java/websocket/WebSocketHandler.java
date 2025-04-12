@@ -38,6 +38,7 @@ public class WebSocketHandler {
             if (username != null) {
                 switch (command.getCommandType()) {
                     case CONNECT -> connect(username, command, session);
+                    case RESIGN -> resign(username, command, session);
                 }
             } else {
                 throw new DataAccessException("Invalid authToken");
@@ -46,6 +47,17 @@ public class WebSocketHandler {
             e.printStackTrace();
             var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
             session.getRemote().sendString(new Gson().toJson(error));
+        }
+    }
+
+    private void resign(String username, UserGameCommand command, Session session) throws DataAccessException, IOException {
+        var gameName = gameDAO.getGameID(command.getGameID());
+        var notif = String.format("%s has resigned", username);
+        if (gameName != null) {
+            var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
+            connections.broadcastResign(command.getGameID(), message);
+        } else {
+            throw new DataAccessException("Invalid game ID");
         }
     }
 
@@ -62,6 +74,10 @@ public class WebSocketHandler {
         } else {
             throw new DataAccessException("Invalid game ID");
         }
+    }
+
+    private void makeMove(String username, UserGameCommand command, Session session) {
+
     }
 
     private String getUsername(String authToken) throws Exception {

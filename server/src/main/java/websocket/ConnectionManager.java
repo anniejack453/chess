@@ -23,6 +23,23 @@ public class ConnectionManager {
         connections.remove(visitorName);
     }
 
+    public void clear() { connections.clear(); }
+
+    public void clearGame(Integer gameID) throws IOException {
+        var removeList = new ArrayList<Connection>();
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (Objects.equals(c.gameID, gameID)) {
+                    removeList.add(c);
+                    c.session.close();
+                }
+            }
+        }
+        for (var c : removeList) {
+            connections.remove(c.visitorName);
+        }
+    }
+
     public void broadcastError(String username, Integer gameID, ErrorMessage message) throws IOException {
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
@@ -53,6 +70,16 @@ public class ConnectionManager {
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
                 if (Objects.equals(c.gameID, gameID) && c.visitorName.equals(username)) {
+                    c.send(new Gson().toJson(message));
+                }
+            }
+        }
+    }
+
+    public void broadcastResign(Integer gameID, NotificationMessage message) throws IOException {
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (Objects.equals(c.gameID, gameID)) {
                     c.send(new Gson().toJson(message));
                 }
             }
