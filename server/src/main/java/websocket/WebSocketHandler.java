@@ -15,6 +15,8 @@ import websocket.messages.ServerMessage;
 import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Timer;
 
 @WebSocket
@@ -66,8 +68,16 @@ public class WebSocketHandler {
 
     private void resign(String username, UserGameCommand command, Session session) throws Exception {
         assertPlaying();
+        var identity = command.getIdentity();
         var gameName = gameDAO.getGameID(command.getGameID());
-        if (command.getIdentity() == UserGameCommand.IdentityType.OBSERVER) {
+        var game = gameDAO.getGameData(gameName);
+        var usernames = new ArrayList<>();
+        usernames.add(game.blackUsername());
+        usernames.add(game.whiteUsername());
+        if (!usernames.contains(username)) {
+            throw new Exception("Observer cannot resign");
+        }
+        if (identity == UserGameCommand.IdentityType.OBSERVER) {
             throw new Exception("Observer cannot resign");
         }
         var notif = String.format("%s has resigned", username);
