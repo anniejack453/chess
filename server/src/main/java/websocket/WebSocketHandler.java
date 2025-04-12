@@ -35,8 +35,12 @@ public class WebSocketHandler {
         try {
             UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
             String username = getUsername(command.getAuthToken());
-            switch (command.getCommandType()) {
-                case CONNECT -> connect(username, command, session);
+            if (username != null) {
+                switch (command.getCommandType()) {
+                    case CONNECT -> connect(username, command, session);
+                }
+            } else {
+                throw new DataAccessException("Invalid authToken");
             }
         } catch (Exception e) {
             e.printStackTrace();
