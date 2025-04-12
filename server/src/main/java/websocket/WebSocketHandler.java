@@ -8,6 +8,7 @@ import model.AuthData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -39,7 +40,7 @@ public class WebSocketHandler {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            var error = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+            var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
             session.getRemote().sendString(new Gson().toJson(error));
         }
     }

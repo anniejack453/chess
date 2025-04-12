@@ -2,9 +2,9 @@ package websocket;
 
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,10 +23,10 @@ public class ConnectionManager {
         connections.remove(visitorName);
     }
 
-    public void broadcastAll(String username, Integer gameID, ServerMessage message) throws IOException {
+    public void broadcastError(String username, Integer gameID, ErrorMessage message) throws IOException {
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (c.gameID.equals(gameID)) {
+                if (c.visitorName.equals(username)) {
                     c.send(new Gson().toJson(message));
                 }
             }
