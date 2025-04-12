@@ -50,8 +50,11 @@ public class WebSocketHandler {
         }
     }
 
-    private void resign(String username, UserGameCommand command, Session session) throws DataAccessException, IOException {
+    private void resign(String username, UserGameCommand command, Session session) throws Exception {
         var gameName = gameDAO.getGameID(command.getGameID());
+        if (command.getIdentity() != UserGameCommand.IdentityType.PLAYER) {
+            throw new Exception("Observer cannot resign");
+        }
         var notif = String.format("%s has resigned", username);
         if (gameName != null) {
             var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
