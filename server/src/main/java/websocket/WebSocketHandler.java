@@ -56,11 +56,20 @@ public class WebSocketHandler {
 
     private void leave(String username, UserGameCommand command, Session session) throws Exception {
         var gameName = gameDAO.getGameID(command.getGameID());
+        var game = gameDAO.getGameData(gameName);
         var notif = String.format("%s has left", username);
+        var usernames = new ArrayList<>();
+        usernames.add(game.blackUsername());
+        usernames.add(game.whiteUsername());
         if (gameName != null) {
             var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
             connections.broadcastOthers(username, command.getGameID(), message);
             connections.leaveGame(username, command.getGameID());
+            if (Objects.equals(username, game.blackUsername())) {
+                gameDAO.setUsernameNull(gameName, "BLACK", null);
+            } else if (Objects.equals(username, game.whiteUsername())) {
+                gameDAO.setUsernameNull(gameName, "WHITE", null);
+            }
         } else {
             throw new DataAccessException("Invalid game ID");
         }

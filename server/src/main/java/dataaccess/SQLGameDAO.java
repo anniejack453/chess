@@ -120,6 +120,32 @@ public class SQLGameDAO implements GameDAO{
         return null;
     }
 
+    @Override
+    public GameData setUsernameNull(String gameName, String playerColor, String username) throws Exception {
+        GameData gameData = getGameData(gameName);
+        if (gameData == null){
+            throw new Exception("Game name not found");
+        }
+        if (Objects.equals(playerColor, "WHITE")){
+            if (gameData.whiteUsername() != null){
+                var statement = "UPDATE games SET whiteUsername = NULL WHERE gameName = ?";
+                executeGameUpdate(statement, gameName);
+                return getGameData(gameName);
+            } else {
+                return null;
+            }
+        } else if (Objects.equals(playerColor, "BLACK")) {
+            if (gameData.blackUsername() != null) {
+                var statement = "UPDATE games SET blackUsername = NULL WHERE gameName = ?";
+                executeGameUpdate(statement, gameName);
+                return getGameData(gameName);
+            } else {
+                return null;
+            }
+        }
+        return null;
+    }
+
     private int executeGameUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {

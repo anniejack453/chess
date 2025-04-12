@@ -9,5 +9,5 @@ public interface GameDAO {
     public GameData getGameData(String gameName) throws DataAccessException;
     public String getGameID(Integer gameID) throws DataAccessException;
     public GameData joinGame(String gameName, String playerColor, String username) throws Exception;
-
+    GameData setUsernameNull(String gameName, String playerColor, String username) throws Exception;
 }

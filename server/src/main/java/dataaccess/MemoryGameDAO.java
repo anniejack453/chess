@@ -77,4 +77,9 @@ public class MemoryGameDAO implements GameDAO{
         }
 
     }
+
+    @Override
+    public GameData setUsernameNull(String gameName, String playerColor, String username) {
+        return null;
+    }
 }
