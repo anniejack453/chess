@@ -24,10 +24,10 @@ public class WebSocketFacade extends Endpoint {
             this.session = container.connectToServer(this, socketURI);
 
             //set message handler
-            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+            this.session.addMessageHandler(new MessageHandler.Whole<ServerMessage>() {
                 @Override
-                public void onMessage(String message) {
-                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                public void onMessage(ServerMessage message) {
+                    ServerMessage serverMessage = new Gson().fromJson(message.toString(), ServerMessage.class);
                     messageHandler.notify(serverMessage);
                 }
             });

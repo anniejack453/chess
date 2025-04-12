@@ -1,6 +1,9 @@
 package websocket;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -23,7 +26,7 @@ public class ConnectionManager {
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
                 if (c.gameID.equals(gameID)) {
-                    c.send(message.toString());
+                    c.send(new Gson().toJson(message));
                 }
             }
         }
@@ -42,6 +45,16 @@ public class ConnectionManager {
         }
         for (var c : removeList) {
             connections.remove(c.visitorName);
+        }
+    }
+
+    public void broadcastLoadGame(String username, Integer gameID, LoadGameMessage message) throws IOException {
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (c.gameID.equals(gameID)) {
+                    c.send(new Gson().toJson(message));
+                }
+            }
         }
     }
 }

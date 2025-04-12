@@ -124,6 +124,8 @@ public class ChessClient {
                 int gameID = gameMap.gameID();
                 chess = gameMap.game();
                 server.joinGame(authToken, playerColor, gameID);
+                state = State.POSTJOINGAME;
+                assertPostGameJoin();
                 ws = new WebSocketFacade(server.serverUrl, messageHandler);
                 ws.joinGame(authToken, gameID);
                 board = new PrintBoard(chess, teamColor);

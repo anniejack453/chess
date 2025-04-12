@@ -32,6 +32,8 @@ public class Repl implements ServerMessageHandler {
 
     @Override
     public void notify(ServerMessage message) { //TODO: make message formats
-
+        if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+            System.out.print(message);
+        }
     }
 }

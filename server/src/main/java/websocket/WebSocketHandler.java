@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.*;
 import exception.ResponseException;
@@ -7,6 +8,7 @@ import model.AuthData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 import websocket.commands.UserGameCommand;
 
@@ -36,7 +38,7 @@ public class WebSocketHandler {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            var error = new ServerMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
+            var error = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             session.getRemote().sendString(new Gson().toJson(error));
         }
     }
@@ -44,11 +46,12 @@ public class WebSocketHandler {
     private void connect(String username, UserGameCommand command, Session session) throws IOException, DataAccessException {
         connections.add(username, command.getGameID(), session);
         var gameName = gameDAO.getGameID(command.getGameID());
-        var chess = gameDAO.getGameData(gameName);
+        var chess = gameDAO.getGameData(gameName).game();
         var notif = String.format("%s has joined the game", username);
-        var message = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
-        var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess);
-        connections.broadcastAll(username, command.getGameID(), message);
+        var message = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+        var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess);
+        var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+        connections.broadcastLoadGame(username, command.getGameID(), game);
     }
 
     private String getUsername(String authToken) throws Exception {
