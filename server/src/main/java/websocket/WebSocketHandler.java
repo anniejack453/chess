@@ -40,6 +40,7 @@ public class WebSocketHandler {
                 switch (command.getCommandType()) {
                     case CONNECT -> connect(username, command, session);
                     case RESIGN -> resign(username, command, session);
+                    case LEAVE -> leave(username, command, session);
                 }
             } else {
                 throw new DataAccessException("Invalid authToken");
@@ -48,6 +49,18 @@ public class WebSocketHandler {
             e.printStackTrace();
             var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
             session.getRemote().sendString(new Gson().toJson(error));
+        }
+    }
+
+    private void leave(String username, UserGameCommand command, Session session) throws Exception {
+        var gameName = gameDAO.getGameID(command.getGameID());
+        var notif = String.format("%s has left", username);
+        if (gameName != null) {
+            var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
+            connections.broadcastOthers(username, command.getGameID(), message);
+            connections.leaveGame(username, command.getGameID());
+        } else {
+            throw new DataAccessException("Invalid game ID");
         }
     }
 

@@ -25,11 +25,11 @@ public class ConnectionManager {
 
     public void clear() { connections.clear(); }
 
-    public void clearGame(Integer gameID) throws IOException {
+    public void leaveGame(String username, Integer gameID) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (Objects.equals(c.gameID, gameID)) {
+                if (Objects.equals(c.visitorName, username)) {
                     removeList.add(c);
                     c.session.close();
                 }
@@ -40,15 +40,15 @@ public class ConnectionManager {
         }
     }
 
-    public void broadcastError(String username, Integer gameID, ErrorMessage message) throws IOException {
-        for (var c : connections.values()) {
-            if (c.session.isOpen()) {
-                if (c.visitorName.equals(username)) {
-                    c.send(new Gson().toJson(message));
-                }
-            }
-        }
-    }
+//    public void broadcastError(String username, Integer gameID, ErrorMessage message) throws IOException {
+//        for (var c : connections.values()) {
+//            if (c.session.isOpen()) {
+//                if (c.visitorName.equals(username)) {
+//                    c.send(new Gson().toJson(message));
+//                }
+//            }
+//        }
+//    }
 
     public void broadcastOthers(String excludeVisitorName, Integer gameID, NotificationMessage message) throws IOException {
         var removeList = new ArrayList<Connection>();
