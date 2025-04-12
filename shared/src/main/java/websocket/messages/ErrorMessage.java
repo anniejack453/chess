@@ -1,4 +1,4 @@
 package websocket.messages;
 
-public record ErrorMessage(String error) {
+public record ErrorMessage(ServerMessage.ServerMessageType serverMessageType, String error) {
 }

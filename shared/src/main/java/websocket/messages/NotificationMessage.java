@@ -1,3 +1,3 @@
 package websocket.messages;
 
-public record NotificationMessage(String message) {}
+public record NotificationMessage(ServerMessage.ServerMessageType serverMessageType, String message) {}

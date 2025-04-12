@@ -9,6 +9,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 import websocket.commands.UserGameCommand;
 
@@ -44,14 +45,18 @@ public class WebSocketHandler {
     }
 
     private void connect(String username, UserGameCommand command, Session session) throws IOException, DataAccessException {
-        connections.add(username, command.getGameID(), session);
         var gameName = gameDAO.getGameID(command.getGameID());
-        var chess = gameDAO.getGameData(gameName).game();
         var notif = String.format("%s has joined the game", username);
-        var message = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-        var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess);
-        var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-        connections.broadcastLoadGame(username, command.getGameID(), game);
+        if (gameName != null) {
+            connections.add(username, command.getGameID(), session);
+            var chess = gameDAO.getGameData(gameName).game();
+            var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
+            var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess);
+            connections.broadcastLoadGameAfterConnect(username, command.getGameID(), game);
+            connections.broadcastOthers(username, command.getGameID(), message);
+        } else {
+            throw new DataAccessException("Invalid game ID");
+        }
     }
 
     private String getUsername(String authToken) throws Exception {
