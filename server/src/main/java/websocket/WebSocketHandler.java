@@ -1,6 +1,7 @@
 package websocket;
 
 import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.*;
 import exception.ResponseException;
@@ -8,6 +9,7 @@ import model.AuthData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import websocket.commands.MoveCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -43,6 +45,10 @@ public class WebSocketHandler {
                     case CONNECT -> connect(username, command, session);
                     case RESIGN -> resign(username, command, session);
                     case LEAVE -> leave(username, command, session);
+                    case MAKE_MOVE -> {
+                        MoveCommand moveCommand = new Gson().fromJson(message, MoveCommand.class);
+                        makeMove(username, moveCommand, session);
+                    }
                 }
             } else {
                 throw new DataAccessException("Invalid authToken");
@@ -58,9 +64,6 @@ public class WebSocketHandler {
         var gameName = gameDAO.getGameID(command.getGameID());
         var game = gameDAO.getGameData(gameName);
         var notif = String.format("%s has left", username);
-        var usernames = new ArrayList<>();
-        usernames.add(game.blackUsername());
-        usernames.add(game.whiteUsername());
         if (gameName != null) {
             var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
             connections.broadcastOthers(username, command.getGameID(), message);
@@ -114,8 +117,39 @@ public class WebSocketHandler {
         }
     }
 
-    private void makeMove(String username, UserGameCommand command, Session session) throws Exception {
+    private void makeMove(String username, MoveCommand command, Session session) throws Exception {
         assertPlaying();
+        var gameName = gameDAO.getGameID(command.getGameID());
+        if (gameName != null) {
+            var gameData = gameDAO.getGameData(gameName);
+            var chess = gameData.game();
+            var notif = String.format("%s has made a move", username);
+            if (Objects.equals(username, gameData.blackUsername())) {
+                try {
+                    chess.makeMove(command.getMove());
+                    var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
+                    var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess);
+                    connections.broadcastOthers(username, command.getGameID(), message);
+                    connections.broadcastLoadGameAfterMove(command.getGameID(), game);
+                    chess.setTeamTurn(ChessGame.TeamColor.WHITE);
+                } catch (InvalidMoveException e) {
+                    throw new RuntimeException(e);
+                }
+            } else if (Objects.equals(username, gameData.whiteUsername())) {
+                try {
+                    chess.makeMove(command.getMove());
+                    var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
+                    var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess);
+                    connections.broadcastOthers(username, command.getGameID(), message);
+                    connections.broadcastLoadGameAfterMove(command.getGameID(), game);
+                    chess.setTeamTurn(ChessGame.TeamColor.BLACK);
+                } catch (InvalidMoveException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } else {
+            throw new DataAccessException("Invalid game ID");
+        }
 
     }
 

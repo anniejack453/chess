@@ -50,13 +50,14 @@ public class ChessClient {
             return """
                     - move <current position> <new position> - make chess move
                     - redraw - redraw chess board
-                    - highlight - highlight legal moves
+                    - highlight <position> - highlight legal moves
                     - resign - forfeit game
                     - help - list possible options
                     - leave - leave game
                     """;
         } return """
                 - redraw - redraw chess board
+                - highlight <position> - highlight legal moves
                 - help - list possible options
                 - leave - leave game
                 """;
@@ -96,7 +97,7 @@ public class ChessClient {
         return "";
     }
 
-    private String leaveGame() throws ResponseException { //TODO: set old player thing to null
+    private String leaveGame() throws ResponseException {
         assertPostGameJoin();
         state = State.POSTLOGIN;
         assertPostLogin();
