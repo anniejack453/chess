@@ -124,7 +124,7 @@ public class WebSocketHandler {
             var gameData = gameDAO.getGameData(gameName);
             var chess = gameData.game();
             var notif = String.format("%s has made a move", username);
-            if (Objects.equals(username, gameData.blackUsername())) {
+            if (Objects.equals(username, gameData.blackUsername()) && chess.getTeamTurn() == ChessGame.TeamColor.BLACK) {
                 try {
                     chess.makeMove(command.getMove());
                     var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
@@ -135,7 +135,7 @@ public class WebSocketHandler {
                 } catch (InvalidMoveException e) {
                     throw new RuntimeException(e);
                 }
-            } else if (Objects.equals(username, gameData.whiteUsername())) {
+            } else if (Objects.equals(username, gameData.whiteUsername()) && chess.getTeamTurn() == ChessGame.TeamColor.WHITE) {
                 try {
                     chess.makeMove(command.getMove());
                     var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
@@ -146,7 +146,7 @@ public class WebSocketHandler {
                 } catch (InvalidMoveException e) {
                     throw new RuntimeException(e);
                 }
-            }
+            } else {throw new Exception("Not your turn");}
         } else {
             throw new DataAccessException("Invalid game ID");
         }
