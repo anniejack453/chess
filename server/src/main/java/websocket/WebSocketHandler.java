@@ -104,13 +104,22 @@ public class WebSocketHandler {
 
     private void connect(String username, UserGameCommand command, Session session) throws IOException, DataAccessException {
         var gameName = gameDAO.getGameID(command.getGameID());
+        var gameData = gameDAO.getGameData(gameName);
         var notif = String.format("%s has joined the game", username);
         if (gameName != null) {
             connections.add(username, command.getGameID(), session);
             var chess = gameDAO.getGameData(gameName).game();
             var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
-            var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess);
-            connections.broadcastLoadGameAfterConnect(username, command.getGameID(), game);
+            if (Objects.equals(username, gameData.blackUsername())) {
+                var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.BLACK);
+                connections.broadcastLoadGameAfterConnect(username, command.getGameID(), game);
+            } else if (Objects.equals(username, gameData.whiteUsername())) {
+                var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
+                connections.broadcastLoadGameAfterConnect(username, command.getGameID(), game);
+            } else {
+                var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
+                connections.broadcastLoadGameAfterConnect(username, command.getGameID(), game);
+            }
             connections.broadcastOthers(username, command.getGameID(), message);
         } else {
             throw new DataAccessException("Invalid game ID");
@@ -127,22 +136,24 @@ public class WebSocketHandler {
             if (Objects.equals(username, gameData.blackUsername()) && chess.getTeamTurn() == ChessGame.TeamColor.BLACK) {
                 try {
                     chess.makeMove(command.getMove());
+                    chess.setTeamTurn(ChessGame.TeamColor.WHITE);
+                    chess.setBoard(chess.getBoard());
                     var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
-                    var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess);
+                    var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.BLACK);
                     connections.broadcastOthers(username, command.getGameID(), message);
                     connections.broadcastLoadGameAfterMove(command.getGameID(), game);
-                    chess.setTeamTurn(ChessGame.TeamColor.WHITE);
                 } catch (InvalidMoveException e) {
                     throw new RuntimeException(e);
                 }
             } else if (Objects.equals(username, gameData.whiteUsername()) && chess.getTeamTurn() == ChessGame.TeamColor.WHITE) {
                 try {
                     chess.makeMove(command.getMove());
+                    chess.setBoard(chess.getBoard());
+                    chess.setTeamTurn(ChessGame.TeamColor.BLACK);
                     var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
-                    var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess);
+                    var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
                     connections.broadcastOthers(username, command.getGameID(), message);
                     connections.broadcastLoadGameAfterMove(command.getGameID(), game);
-                    chess.setTeamTurn(ChessGame.TeamColor.BLACK);
                 } catch (InvalidMoveException e) {
                     throw new RuntimeException(e);
                 }

@@ -2,6 +2,7 @@ package websocket;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 import websocket.commands.UserGameCommand;
 
@@ -24,11 +25,13 @@ public class WebSocketFacade extends Endpoint {
             this.session = container.connectToServer(this, socketURI);
 
             //set message handler
-            this.session.addMessageHandler(new MessageHandler.Whole<ServerMessage>() {
+            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
-                public void onMessage(ServerMessage message) {
-                    ServerMessage serverMessage = new Gson().fromJson(message.toString(), ServerMessage.class);
-                    messageHandler.notify(serverMessage);
+                public void onMessage(String message) {
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    switch (serverMessage.getServerMessageType()) {
+                        case LOAD_GAME -> messageHandler.notify(new Gson().fromJson(message, LoadGameMessage.class));
+                    }
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
@@ -43,6 +46,15 @@ public class WebSocketFacade extends Endpoint {
     public void joinGame(String authToken, Integer gameID) throws ResponseException {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, UserGameCommand.IdentityType.PLAYER);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
+
+    public void observeGame(String authToken, Integer gameID) throws ResponseException {
+        try {
+            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, UserGameCommand.IdentityType.OBSERVER);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());

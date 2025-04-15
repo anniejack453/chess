@@ -129,12 +129,12 @@ public class ChessClient {
                 assertPostGameJoin();
                 ws = new WebSocketFacade(server.serverUrl, messageHandler);
                 ws.joinGame(authToken, gameID);
-                board = new PrintBoard(chess, teamColor);
-                return String.format("You joined game as %s.", playerColor);
+                //board = new PrintBoard(chess, teamColor);
+                return String.format("You joined game as %s.\n", playerColor);
             }
-            throw new ResponseException(400, "Number needs to be in list");
+            throw new ResponseException(400, "Number needs to be in list\n");
         }
-        throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
+        throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]\n");
     }
 
     private String observeGame(String authToken, String[] params) throws ResponseException { //TODO: add websocket
@@ -152,7 +152,7 @@ public class ChessClient {
                 board = new PrintBoard(gameMap.game(), ChessGame.TeamColor.WHITE);
                 state = State.POSTJOINGAME;
                 assertPostGameJoin();
-                return String.format("You are observing game %d", gameNum);
+                return String.format("You are observing game %d\n", gameNum);
             }
         }
         throw new ResponseException(400, "Expected: <ID>");

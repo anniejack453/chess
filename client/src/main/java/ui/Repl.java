@@ -1,6 +1,8 @@
 package ui;
 
+import chess.ChessGame;
 import websocket.ServerMessageHandler;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
@@ -33,7 +35,9 @@ public class Repl implements ServerMessageHandler {
     @Override
     public void notify(ServerMessage message) { //TODO: make message formats
         if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-            System.out.print(message);
+            var loadGameMessage = (LoadGameMessage) message;
+            var game = loadGameMessage.game();
+            new PrintBoard(game,((LoadGameMessage) message).getTeamColor());
         }
     }
 }

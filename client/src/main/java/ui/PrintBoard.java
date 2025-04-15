@@ -13,6 +13,7 @@ import static ui.EscapeSequences.*;
 
 public class PrintBoard {
     private ChessBoard board;
+    private ChessGame chess;
     private static ChessGame.TeamColor playerColor;
     private static final int BOARD_SIZE_IN_SQUARES = 10;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
@@ -77,7 +78,7 @@ public class PrintBoard {
                 }
             }
             for (int boardCol = 1; boardCol < BOARD_SIZE_IN_SQUARES-1; ++boardCol) {
-                if ((boardRow + boardCol) % 2 == 0) {
+                if ((boardRow + boardCol) % 2 == 0) { //TODO:check for highlight another for loop for possible moves
                     out.print(SET_BG_COLOR_WHITE);
                 } else {
                     out.print(SET_BG_COLOR_BLACK);
@@ -140,6 +141,9 @@ public class PrintBoard {
         } else {
             out.print(" ");
         }
+    }
+
+    public void highlightMoves(ChessPosition position) {
     }
 
     private void endRowOfSquares(PrintStream out) {
