@@ -143,6 +143,10 @@ public class PrintBoard {
         }
     }
 
+    private void highlightMoves(ChessPosition position) {
+
+    }
+
     private void endRowOfSquares(PrintStream out) {
         out.print(RESET_BG_COLOR);
         out.println();

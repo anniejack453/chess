@@ -8,7 +8,6 @@ import model.GameData;
 import model.ListGamesResult;
 import websocket.ServerMessageHandler;
 import websocket.WebSocketFacade;
-import websocket.messages.*;
 
 import java.util.*;
 
@@ -22,6 +21,8 @@ public class ChessClient {
     private ChessGame chess;
     private final ServerMessageHandler messageHandler;
     private WebSocketFacade ws;
+    private Repl repl;
+    private ChessGame.TeamColor teamColor;
 
     public ChessClient(Integer port, ServerMessageHandler messageHandler) {
         server = new ServerFacade(port);
@@ -81,7 +82,7 @@ public class ChessClient {
                 case "observe" -> observeGame(authToken, params);
                 case "leave" -> leaveGame(authToken);
                 case "redraw" -> redrawBoard();
-                case "move" -> move(params);
+                case "move" -> move(authToken, params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -90,14 +91,15 @@ public class ChessClient {
         }
     }
 
-    private String move(String[] params) throws ResponseException {
+    private String move(String authToken, String[] params) throws ResponseException {
         assertPostGameJoin();
         return "";
     }
 
     private String redrawBoard() throws ResponseException {
         assertPostGameJoin();
-        return "";
+        board = new PrintBoard(chess, teamColor);
+        return "Game board redrawn\n";
     }
 
     private String leaveGame(String authToken) throws ResponseException {
@@ -124,12 +126,13 @@ public class ChessClient {
                 var listGames = gameList;
                 var gameMap = listGames.get(gameNum);
                 int gameID = gameMap.gameID();
-                chess = gameMap.game();
                 server.joinGame(authToken, playerColor, gameID);
+                teamColor = ChessGame.TeamColor.valueOf(playerColor);
                 state = State.POSTJOINGAME;
                 assertPostGameJoin();
                 ws = new WebSocketFacade(server.serverUrl, messageHandler);
                 ws.joinGame(authToken, gameID);
+                chess = gameMap.game();
                 return String.format("You joined game as %s.\n", playerColor);
             }
             throw new ResponseException(400, "Number needs to be in list\n");
@@ -151,6 +154,7 @@ public class ChessClient {
                 var gameMap = listGames.get(gameNum);
                 ws = new WebSocketFacade(server.serverUrl, messageHandler);
                 ws.observeGame(authToken, gameMap.gameID());
+                teamColor = ChessGame.TeamColor.WHITE;
                 state = State.POSTJOINGAME;
                 assertPostGameJoin();
                 return String.format("You are observing game %d\n", gameNum);

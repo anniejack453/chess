@@ -51,7 +51,7 @@ public class WebSocketHandler {
                     }
                 }
             } else {
-                throw new DataAccessException("Invalid authToken");
+                throw new DataAccessException("Invalid authToken\n");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -63,7 +63,7 @@ public class WebSocketHandler {
     private void leave(String username, UserGameCommand command, Session session) throws Exception {
         var gameName = gameDAO.getGameID(command.getGameID());
         var game = gameDAO.getGameData(gameName);
-        var notif = String.format("%s has left", username);
+        var notif = String.format("%s has left\n", username);
         if (gameName != null) {
             var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
             connections.broadcastOthers(username, command.getGameID(), message);
@@ -74,7 +74,7 @@ public class WebSocketHandler {
                 gameDAO.setUsernameNull(gameName, "WHITE", null);
             }
         } else {
-            throw new DataAccessException("Invalid game ID");
+            throw new DataAccessException("Invalid game ID\n");
         }
     }
 
@@ -87,18 +87,18 @@ public class WebSocketHandler {
         usernames.add(game.blackUsername());
         usernames.add(game.whiteUsername());
         if (!usernames.contains(username)) {
-            throw new Exception("Observer cannot resign");
+            throw new Exception("Observer cannot resign\n");
         }
         if (identity == UserGameCommand.IdentityType.OBSERVER) {
-            throw new Exception("Observer cannot resign");
+            throw new Exception("Observer cannot resign\n");
         }
-        var notif = String.format("%s has resigned", username);
+        var notif = String.format("%s has resigned\n", username);
         if (gameName != null) {
             var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
             connections.broadcastResign(command.getGameID(), message);
             state = WebSocketState.RESIGNED;
         } else {
-            throw new DataAccessException("Invalid game ID");
+            throw new DataAccessException("Invalid game ID\n");
         }
     }
 
@@ -106,7 +106,7 @@ public class WebSocketHandler {
         state = WebSocketState.GAMEPLAY;
         var gameName = gameDAO.getGameID(command.getGameID());
         var gameData = gameDAO.getGameData(gameName);
-        var notif = String.format("%s has joined the game", username);
+        var notif = String.format("%s has joined the game\n", username);
         if (gameName != null) {
             connections.add(username, command.getGameID(), session);
             var chess = gameDAO.getGameData(gameName).game();
@@ -123,7 +123,7 @@ public class WebSocketHandler {
             }
             connections.broadcastOthers(username, command.getGameID(), message);
         } else {
-            throw new DataAccessException("Invalid game ID");
+            throw new DataAccessException("Invalid game ID\n");
         }
     }
 
@@ -133,7 +133,7 @@ public class WebSocketHandler {
         if (gameName != null) {
             var gameData = gameDAO.getGameData(gameName);
             var chess = gameData.game();
-            var notif = String.format("%s has made a move", username);
+            var notif = String.format("%s has made a move\n", username);
             if (Objects.equals(username, gameData.blackUsername()) && chess.getTeamTurn() == ChessGame.TeamColor.BLACK) {
                 try {
                     chess.makeMove(command.getMove());
@@ -156,9 +156,9 @@ public class WebSocketHandler {
                 } catch (InvalidMoveException e) {
                     throw new RuntimeException(e);
                 }
-            } else {throw new Exception("Not your turn");}
+            } else {throw new Exception("Not your turn\n");}
         } else {
-            throw new DataAccessException("Invalid game ID");
+            throw new DataAccessException("Invalid game ID\n");
         }
 
     }
@@ -166,14 +166,14 @@ public class WebSocketHandler {
     private String getUsername(String authToken) throws Exception {
         AuthData authData = authDAO.getUserFromAuth(authToken);
         if (authData == null) {
-            throw new Exception("Incorrect authToken");
+            throw new Exception("Incorrect authToken\n");
         }
         return authData.username();
     }
 
     private void assertPlaying() throws Exception{
         if (state == WebSocketState.RESIGNED) {
-            throw new Exception("You are resigned. Gameplay has ended");
+            throw new Exception("You are resigned. Gameplay has ended\n");
         }
     }
 }
