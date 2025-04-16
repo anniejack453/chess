@@ -10,10 +10,6 @@ public final class NotificationMessage extends ServerMessage {
         this.message = message;
     }
 
-    public ServerMessageType serverMessageType() {
-        return serverMessageType;
-    }
-
     public String message() {
         return message;
     }

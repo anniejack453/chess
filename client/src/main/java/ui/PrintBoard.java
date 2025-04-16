@@ -78,7 +78,7 @@ public class PrintBoard {
                 }
             }
             for (int boardCol = 1; boardCol < BOARD_SIZE_IN_SQUARES-1; ++boardCol) {
-                if ((boardRow + boardCol) % 2 == 0) { //TODO:check for highlight another for loop for possible moves
+                if ((boardRow + boardCol) % 2 == 0) { //check for highlight another for loop for possible moves
                     out.print(SET_BG_COLOR_WHITE);
                 } else {
                     out.print(SET_BG_COLOR_BLACK);
@@ -141,9 +141,6 @@ public class PrintBoard {
         } else {
             out.print(" ");
         }
-    }
-
-    public void highlightMoves(ChessPosition position) {
     }
 
     private void endRowOfSquares(PrintStream out) {

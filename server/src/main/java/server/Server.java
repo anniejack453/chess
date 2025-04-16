@@ -22,7 +22,7 @@ public class Server extends EncoderDecoder {
             userService = new UserService(new SQLUserDAO());
             authService = new AuthService(new SQLAuthDAO());
             gameService = new GameService(new SQLGameDAO());
-            webSocketHandler = new WebSocketHandler(new SQLAuthDAO(), new SQLGameDAO()); //TODO: could cause issues
+            webSocketHandler = new WebSocketHandler(new SQLAuthDAO(), new SQLGameDAO());
         } catch (DataAccessException e) {
             System.out.println("Error");
         }
@@ -117,7 +117,7 @@ public class Server extends EncoderDecoder {
         return Map.of();
     }
 
-    private Object joinGame(Request req, Response res) throws Exception { //TODO: add websocket
+    private Object joinGame(Request req, Response res) throws Exception {
         String authReq = decodeHeader(req, AuthRequest.class);
         JoinRequest joinReq = (JoinRequest) decode(req, JoinRequest.class);
         var authData = authService.getAuth(authReq);

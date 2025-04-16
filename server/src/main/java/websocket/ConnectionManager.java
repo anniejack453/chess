@@ -40,16 +40,6 @@ public class ConnectionManager {
         }
     }
 
-//    public void broadcastError(String username, Integer gameID, ErrorMessage message) throws IOException {
-//        for (var c : connections.values()) {
-//            if (c.session.isOpen()) {
-//                if (c.visitorName.equals(username)) {
-//                    c.send(new Gson().toJson(message));
-//                }
-//            }
-//        }
-//    }
-
     public void broadcastOthers(String excludeVisitorName, Integer gameID, NotificationMessage message) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
@@ -89,7 +79,7 @@ public class ConnectionManager {
     public void broadcastResign(Integer gameID, NotificationMessage message) throws IOException {
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (Objects.equals(c.gameID, gameID)) {
+                if (c.gameID == gameID) {
                     c.send(new Gson().toJson(message));
                 }
             }

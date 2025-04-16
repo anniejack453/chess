@@ -137,7 +137,7 @@ public class ChessClient {
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]\n");
     }
 
-    private String observeGame(String authToken, String[] params) throws ResponseException { //TODO: add websocket
+    private String observeGame(String authToken, String[] params) throws ResponseException {
         assertPostLogin();
         int gameNum;
         if (params.length == 1) {

@@ -35,7 +35,7 @@ public class Repl implements ServerMessageHandler {
     }
 
     @Override
-    public void notify(ServerMessage message) { //TODO: make message formats
+    public void notify(ServerMessage message) {
         if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
             var loadGameMessage = (LoadGameMessage) message;
             var game = loadGameMessage.game();
