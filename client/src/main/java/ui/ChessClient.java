@@ -83,12 +83,22 @@ public class ChessClient {
                 case "leave" -> leaveGame(authToken);
                 case "redraw" -> redrawBoard();
                 case "move" -> move(authToken, params);
+                case "resign" -> resign(authToken);
                 case "quit" -> "quit";
                 default -> help();
             };
         } catch (Exception ex) {
             return ex.getMessage();
         }
+    }
+
+    private String resign(String authToken) throws ResponseException {
+        assertPostGameJoin();
+        var listGames = gameList;
+        var gameMap = listGames.get(gameNum);
+        int gameID = gameMap.gameID();
+        ws.resign(authToken, gameID);
+        return "You forfeited the game\n";
     }
 
     private String move(String authToken, String[] params) throws Exception {
@@ -103,12 +113,10 @@ public class ChessClient {
             int gameID = gameMap.gameID();
             try {
                 ws.makeMove(authToken, gameID, chessMove);
+                return "\n";
             } catch (Exception e) {
                 throw new Exception(e.getMessage());
             }
-            updateGameList();
-            chess = gameList.get(gameNum).game();
-            return "You made a move.\n";
         }
         throw new ResponseException(400, "Expected: <start position> <end position>\n");
     }
@@ -162,7 +170,6 @@ public class ChessClient {
 
     private String observeGame(String authToken, String[] params) throws ResponseException {
         assertPostLogin();
-        int gameNum;
         if (params.length == 1) {
             try {
                 gameNum = Integer.parseInt(params[0]);
