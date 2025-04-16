@@ -39,7 +39,8 @@ public class Repl implements ServerMessageHandler {
         if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
             var loadGameMessage = (LoadGameMessage) message;
             var game = loadGameMessage.game();
-            new PrintBoard(game,((LoadGameMessage) message).getTeamColor());
+            client.setChess(game);
+            new PrintBoard(game,((LoadGameMessage) message).getTeamColor(), null);
         } else if (message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
             var notif = (NotificationMessage) message;
             System.out.print(notif.message());

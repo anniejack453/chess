@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import dataaccess.*;
 import exception.ResponseException;
 import model.AuthData;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -106,7 +107,12 @@ public class WebSocketHandler {
         state = WebSocketState.GAMEPLAY;
         var gameName = gameDAO.getGameID(command.getGameID());
         var gameData = gameDAO.getGameData(gameName);
-        var notif = String.format("%s has joined the game\n", username);
+        var notif = "";
+        if (command.getTeamColor() != null) {
+            notif = String.format("%s has joined the game as %s\n", username, command.getTeamColor());
+        } else {
+            notif = String.format("%s has joined the game\n", username);
+        }
         if (gameName != null) {
             connections.add(username, command.getGameID(), session);
             var chess = gameDAO.getGameData(gameName).game();
@@ -133,6 +139,9 @@ public class WebSocketHandler {
         if (gameName != null) {
             var gameData = gameDAO.getGameData(gameName);
             var chess = gameData.game();
+            if (determineStatus(username, chess, gameData)) {
+                return;
+            }
             var notif = String.format("%s has made a move\n", username);
             if (command.getMove() == null && Objects.equals(username, gameData.blackUsername())) {
                 var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.BLACK);
@@ -189,6 +198,31 @@ public class WebSocketHandler {
             throw new Exception("Incorrect authToken\n");
         }
         return authData.username();
+    }
+
+    private boolean determineStatus(String username, ChessGame chess, GameData gameData) throws IOException {
+        if (chess.isInCheckmate(ChessGame.TeamColor.BLACK) && Objects.equals(username, gameData.blackUsername())) {
+            var error = "You are in checkmate.";
+            var checkMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, error);
+            connections.broadcastOwnError(username, gameData.gameID(), checkMessage);
+            return true;
+        } else if (chess.isInCheckmate(ChessGame.TeamColor.WHITE) && Objects.equals(username, gameData.whiteUsername())) {
+            var notif = "You are in checkmate.";
+            var checkMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, notif);
+            connections.broadcastOwnError(username, gameData.gameID(), checkMessage);
+            return true;
+        } else if (chess.isInCheck(ChessGame.TeamColor.BLACK) && Objects.equals(username, gameData.blackUsername())) {
+            var notif = "You are in check.";
+            var checkMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, notif);
+            connections.broadcastOwnError(username, gameData.gameID(), checkMessage);
+            return true;
+        } else if (chess.isInCheck(ChessGame.TeamColor.WHITE) && Objects.equals(username, gameData.whiteUsername())) {
+            var notif = "You are in check.";
+            var checkMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, notif);
+            connections.broadcastOwnError(username, gameData.gameID(), checkMessage);
+            return true;
+        }
+        return false;
     }
 
     private void assertPlaying() throws Exception{

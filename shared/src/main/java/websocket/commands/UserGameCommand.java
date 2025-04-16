@@ -1,5 +1,7 @@
 package websocket.commands;
 
+import chess.ChessGame;
+
 import java.util.Objects;
 
 /**
@@ -18,11 +20,28 @@ public class UserGameCommand {
 
     private final IdentityType identity;
 
-    public UserGameCommand(CommandType commandType, String authToken, Integer gameID, IdentityType identity) {
+    private ChessGame.TeamColor teamColor;
+
+    public UserGameCommand(CommandType commandType, String authToken, Integer gameID, IdentityType identity, ChessGame.TeamColor teamColor) {
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
         this.identity = identity;
+        this.teamColor = teamColor;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        UserGameCommand that = (UserGameCommand) o;
+        return commandType == that.commandType && Objects.equals(authToken, that.authToken) && Objects.equals(gameID, that.gameID) && identity == that.identity && teamColor == that.teamColor;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(commandType, authToken, gameID, identity, teamColor);
     }
 
     public enum IdentityType {
@@ -51,22 +70,8 @@ public class UserGameCommand {
 
     public IdentityType getIdentity() { return identity; }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof UserGameCommand)) {
-            return false;
-        }
-        UserGameCommand that = (UserGameCommand) o;
-        return getCommandType() == that.getCommandType() &&
-                Objects.equals(getAuthToken(), that.getAuthToken()) &&
-                Objects.equals(getGameID(), that.getGameID());
+    public ChessGame.TeamColor getTeamColor() {
+        return teamColor;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getCommandType(), getAuthToken(), getGameID());
-    }
 }

@@ -1,5 +1,6 @@
 package websocket.commands;
 
+import chess.ChessGame;
 import chess.ChessMove;
 
 import java.util.Objects;
@@ -7,8 +8,8 @@ import java.util.Objects;
 public final class MoveCommand extends UserGameCommand {
     private final ChessMove move;
 
-    public MoveCommand(CommandType userGameCommandType, String authToken, Integer gameID, IdentityType identity, ChessMove move) {
-        super(userGameCommandType, authToken, gameID, identity);
+    public MoveCommand(CommandType userGameCommandType, String authToken, Integer gameID, IdentityType identity, ChessGame.TeamColor teamColor, ChessMove move) {
+        super(userGameCommandType, authToken, gameID, identity, teamColor);
         this.move = move;
     }
 
