@@ -35,6 +35,7 @@ public class ChessClient {
                     - login <USERNAME> <PASSWORD>
                     - help - list possible options
                     - quit - exit program
+                    
                     """;
         } else if (state == State.POSTLOGIN) {
             return """
@@ -45,6 +46,7 @@ public class ChessClient {
                     - logout
                     - help - list possible options
                     - quit - exit program
+                    
                     """;
         } else if (state == State.POSTJOINGAME) {
             return """
@@ -54,6 +56,7 @@ public class ChessClient {
                     - resign - forfeit game
                     - help - list possible options
                     - leave - leave game
+                    
                     """;
         } return """
                 - redraw - redraw chess board
@@ -76,7 +79,7 @@ public class ChessClient {
                 case "list" -> listGames(authToken);
                 case "join" -> joinGame(authToken, params);
                 case "observe" -> observeGame(authToken, params);
-                case "leave" -> leaveGame();
+                case "leave" -> leaveGame(authToken);
                 case "redraw" -> redrawBoard();
                 case "move" -> move(params);
                 case "quit" -> "quit";
@@ -97,11 +100,15 @@ public class ChessClient {
         return "";
     }
 
-    private String leaveGame() throws ResponseException {
+    private String leaveGame(String authToken) throws ResponseException {
         assertPostGameJoin();
+        var listGames = gameList;
+        var gameMap = listGames.get(gameNum);
+        int gameID = gameMap.gameID();
+        ws.leaveGame(authToken, gameID);
         state = State.POSTLOGIN;
         assertPostLogin();
-        return "You have left the game";
+        return "You have left the game\n";
     }
 
     private String joinGame(String authToken, String[] params) throws ResponseException {
@@ -114,12 +121,6 @@ public class ChessClient {
             }
             if (gameList.containsKey(gameNum)) {
                 var playerColor = params[1].toUpperCase();
-                ChessGame.TeamColor teamColor;
-                if (playerColor.equals("WHITE")) {
-                    teamColor = ChessGame.TeamColor.WHITE;
-                } else {
-                    teamColor = ChessGame.TeamColor.BLACK;
-                }
                 var listGames = gameList;
                 var gameMap = listGames.get(gameNum);
                 int gameID = gameMap.gameID();
@@ -129,7 +130,6 @@ public class ChessClient {
                 assertPostGameJoin();
                 ws = new WebSocketFacade(server.serverUrl, messageHandler);
                 ws.joinGame(authToken, gameID);
-                //board = new PrintBoard(chess, teamColor);
                 return String.format("You joined game as %s.\n", playerColor);
             }
             throw new ResponseException(400, "Number needs to be in list\n");
@@ -149,13 +149,14 @@ public class ChessClient {
             if (gameList.containsKey(gameNum)) {
                 var listGames = gameList;
                 var gameMap = listGames.get(gameNum);
-                board = new PrintBoard(gameMap.game(), ChessGame.TeamColor.WHITE);
+                ws = new WebSocketFacade(server.serverUrl, messageHandler);
+                ws.observeGame(authToken, gameMap.gameID());
                 state = State.POSTJOINGAME;
                 assertPostGameJoin();
                 return String.format("You are observing game %d\n", gameNum);
             }
         }
-        throw new ResponseException(400, "Expected: <ID>");
+        throw new ResponseException(400, "Expected: <ID>\n");
     }
 
     private String logout(String authToken) throws ResponseException {
@@ -163,7 +164,7 @@ public class ChessClient {
         server.logout(authToken);
         state = State.PRELOGIN;
         assertPreLogin();
-        return "You have been logged out.";
+        return "You have been logged out.\n";
     }
 
     public String login(String... params) throws ResponseException {
@@ -175,10 +176,10 @@ public class ChessClient {
                 AuthData authData = (AuthData) server.login(username, password);
                 authToken = authData.authToken();
                 state = State.POSTLOGIN;
-                return String.format("You signed in as %s.", authData.username());
+                return String.format("You signed in as %s.\n", authData.username());
             }
         }
-        throw new ResponseException(400, "Expected: <username> <password>");
+        throw new ResponseException(400, "Expected: <username> <password>\n");
     }
 
     public String register(String... params) throws ResponseException {
@@ -191,10 +192,10 @@ public class ChessClient {
                 AuthData authData = (AuthData) server.register(params[0], params[1], params[2]);
                 authToken = authData.authToken();
                 state = State.POSTLOGIN;
-                return String.format("You signed in as %s.", authData.username());
+                return String.format("You signed in as %s.\n", authData.username());
             }
         }
-        throw new ResponseException(400, "Expected: <username> <password> <email>");
+        throw new ResponseException(400, "Expected: <username> <password> <email>\n");
     }
 
     public String listGames(String authToken) throws ResponseException {
@@ -220,26 +221,26 @@ public class ChessClient {
         assertPostLogin();
         if (params.length == 1) {
             var game = (CreateResult) server.createGame(authToken, params[0]);
-            return String.format("Game ID: %s", game.gameID());
+            return String.format("Game ID: %s\n", game.gameID());
         }
-        throw new ResponseException(400, "Expected: <GameName>");
+        throw new ResponseException(400, "Expected: <GameName>\n");
     }
 
     private void assertPostLogin() throws ResponseException {
         if (state != State.POSTLOGIN) {
-            throw new ResponseException(400, "You must sign in.");
+            throw new ResponseException(400, "You must sign in.\n");
         }
     }
 
     private void assertPreLogin() throws ResponseException {
         if (state != State.PRELOGIN) {
-            throw new ResponseException(400, "You are already signed in.");
+            throw new ResponseException(400, "You are already signed in.\n");
         }
     }
 
     private void assertPostGameJoin() throws ResponseException {
         if (state != State.POSTJOINGAME) {
-            throw new ResponseException(400, "You must join a game.");
+            throw new ResponseException(400, "You must join a game.\n");
         }
     }
 }

@@ -41,7 +41,6 @@ public class SQLGameDAO implements GameDAO{
     public void clearGames() throws DataAccessException {
         var statement = "TRUNCATE games";
         executeGameUpdate(statement);
-
     }
 
     @Override
@@ -144,6 +143,17 @@ public class SQLGameDAO implements GameDAO{
             }
         }
         return null;
+    }
+
+    @Override
+    public GameData updateGame(String gameName, ChessGame chess) throws Exception {
+        GameData gameData = getGameData(gameName);
+        if (gameData == null){
+            throw new Exception("Game name not found");
+        }
+        var statement = "UPDATE games SET game = ? WHERE gameName = ?";
+        executeGameUpdate(statement, new Gson().toJson(chess), gameName);
+        return getGameData(gameName);
     }
 
     private int executeGameUpdate(String statement, Object... params) throws DataAccessException {

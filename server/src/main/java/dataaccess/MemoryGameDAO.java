@@ -82,4 +82,10 @@ public class MemoryGameDAO implements GameDAO{
     public GameData setUsernameNull(String gameName, String playerColor, String username) {
         return null;
     }
+
+    @Override
+    public GameData updateGame(String gameName, ChessGame chess) {
+        return null;
+    }
+
 }

@@ -2,7 +2,9 @@ package ui;
 
 import chess.ChessGame;
 import websocket.ServerMessageHandler;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
@@ -38,6 +40,12 @@ public class Repl implements ServerMessageHandler {
             var loadGameMessage = (LoadGameMessage) message;
             var game = loadGameMessage.game();
             new PrintBoard(game,((LoadGameMessage) message).getTeamColor());
+        } else if (message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+            var notif = (NotificationMessage) message;
+            System.out.print(notif.message());
+        } else if (message.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            var error = (ErrorMessage) message;
+            System.out.print(error.errorMessage());
         }
     }
 }
