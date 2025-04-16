@@ -142,7 +142,6 @@ public class WebSocketHandler {
             if (determineStatus(username, chess, gameData)) {
                 return;
             }
-            var notif = String.format("%s has made a move\n", username);
             if (command.getMove() == null && Objects.equals(username, gameData.blackUsername())) {
                 var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.BLACK);
                 connections.broadcastLoadGameAfterMove(username, command.getGameID(), game);
@@ -157,9 +156,7 @@ public class WebSocketHandler {
                 return;
             } else if (Objects.equals(username, gameData.blackUsername()) && chess.getTeamTurn() == ChessGame.TeamColor.BLACK) {
                 try {
-                    chess.makeMove(command.getMove());
-                    gameDAO.updateGame(gameName, chess);
-                    var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
+                    var message = moveMessage(username, command, gameName, chess);
                     var selfGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.BLACK);
                     var otherGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
                     connections.broadcastOthers(username, command.getGameID(), message);
@@ -170,9 +167,7 @@ public class WebSocketHandler {
                 }
             } else if (Objects.equals(username, gameData.whiteUsername()) && chess.getTeamTurn() == ChessGame.TeamColor.WHITE) {
                 try {
-                    chess.makeMove(command.getMove());
-                    gameDAO.updateGame(gameName, chess);
-                    var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
+                    var message = moveMessage(username, command, gameName, chess);
                     var selfGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
                     var otherGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.BLACK);
                     connections.broadcastOthers(username, command.getGameID(), message);
@@ -190,6 +185,17 @@ public class WebSocketHandler {
         } else {
             throw new DataAccessException("Invalid game ID\n");
         }
+    }
+
+    private NotificationMessage moveMessage(String username, MoveCommand command, String gameName, ChessGame chess) throws Exception {
+        var move = command.getMove();
+        var start = move.getStartPosition().toString();
+        var end = move.getEndPosition().toString();
+        var moveString = start + " " + end;
+        var notif = String.format("%s has made a move %s\n", username, moveString);
+        chess.makeMove(command.getMove());
+        gameDAO.updateGame(gameName, chess);
+        return new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
     }
 
     private String getUsername(String authToken) throws Exception {
