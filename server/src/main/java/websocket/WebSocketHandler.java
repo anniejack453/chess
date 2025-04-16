@@ -134,14 +134,28 @@ public class WebSocketHandler {
             var gameData = gameDAO.getGameData(gameName);
             var chess = gameData.game();
             var notif = String.format("%s has made a move\n", username);
-            if (Objects.equals(username, gameData.blackUsername()) && chess.getTeamTurn() == ChessGame.TeamColor.BLACK) {
+            if (command.getMove() == null && Objects.equals(username, gameData.blackUsername())) {
+                var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.BLACK);
+                connections.broadcastLoadGameAfterMove(username, command.getGameID(), game);
+                return;
+            } else if (command.getMove() == null && Objects.equals(username, gameData.whiteUsername())) {
+                var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
+                connections.broadcastLoadGameAfterMove(username, command.getGameID(), game);
+                return;
+            } else if (command.getMove() == null) {
+                var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
+                connections.broadcastLoadGameAfterMove(username, command.getGameID(), game);
+                return;
+            } else if (Objects.equals(username, gameData.blackUsername()) && chess.getTeamTurn() == ChessGame.TeamColor.BLACK) {
                 try {
                     chess.makeMove(command.getMove());
                     gameDAO.updateGame(gameName, chess);
                     var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
-                    var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.BLACK);
+                    var selfGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.BLACK);
+                    var otherGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
                     connections.broadcastOthers(username, command.getGameID(), message);
-                    connections.broadcastLoadGameAfterMove(command.getGameID(), game);
+                    connections.broadcastLoadGameAfterMove(username, command.getGameID(), selfGame);
+                    connections.broadcastLoadGameForOthers(username, command.getGameID(), otherGame);
                 } catch (InvalidMoveException e) {
                     throw new RuntimeException(e);
                 }
@@ -150,9 +164,16 @@ public class WebSocketHandler {
                     chess.makeMove(command.getMove());
                     gameDAO.updateGame(gameName, chess);
                     var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
-                    var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
+                    var selfGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
+                    var otherGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.BLACK);
                     connections.broadcastOthers(username, command.getGameID(), message);
-                    connections.broadcastLoadGameAfterMove(command.getGameID(), game);
+                    if (gameData.blackUsername() != null) {
+                        connections.broadcastLoadGameForOthers(gameData.blackUsername(), command.getGameID(), selfGame);
+                        connections.broadcastLoadGameAfterMove(gameData.blackUsername(), command.getGameID(), otherGame);
+                    } else {
+                        connections.broadcastLoadGameAfterMove(username, command.getGameID(), selfGame);
+                        connections.broadcastLoadGameForOthers(username, command.getGameID(), selfGame);
+                    }
                 } catch (InvalidMoveException e) {
                     throw new RuntimeException(e);
                 }
@@ -160,7 +181,6 @@ public class WebSocketHandler {
         } else {
             throw new DataAccessException("Invalid game ID\n");
         }
-
     }
 
     private String getUsername(String authToken) throws Exception {

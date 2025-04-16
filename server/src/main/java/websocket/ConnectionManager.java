@@ -66,10 +66,26 @@ public class ConnectionManager {
         }
     }
 
-    public void broadcastLoadGameAfterMove(Integer gameID, LoadGameMessage message) throws IOException {
+    public void broadcastLoadGameForOthers(String username, Integer gameID, LoadGameMessage message) throws IOException {
+        var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (Objects.equals(c.gameID, gameID)) {
+                if (!c.visitorName.equals(username) && c.gameID == gameID) {
+                    c.send(new Gson().toJson(message));
+                }
+            } else {
+                removeList.add(c);
+            }
+        }
+        for (var c : removeList) {
+            connections.remove(c.visitorName);
+        }
+    }
+
+    public void broadcastLoadGameAfterMove(String username, Integer gameID, LoadGameMessage message) throws IOException {
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (c.gameID == gameID && c.visitorName.equals(username)) {
                     c.send(new Gson().toJson(message));
                 }
             }

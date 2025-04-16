@@ -6,6 +6,7 @@ import model.AuthData;
 import model.CreateResult;
 import model.GameData;
 import model.ListGamesResult;
+import websocket.MoveConverter;
 import websocket.ServerMessageHandler;
 import websocket.WebSocketFacade;
 
@@ -21,7 +22,6 @@ public class ChessClient {
     private ChessGame chess;
     private final ServerMessageHandler messageHandler;
     private WebSocketFacade ws;
-    private Repl repl;
     private ChessGame.TeamColor teamColor;
 
     public ChessClient(Integer port, ServerMessageHandler messageHandler) {
@@ -86,19 +86,39 @@ public class ChessClient {
                 case "quit" -> "quit";
                 default -> help();
             };
-        } catch (ResponseException ex) {
+        } catch (Exception ex) {
             return ex.getMessage();
         }
     }
 
-    private String move(String authToken, String[] params) throws ResponseException {
+    private String move(String authToken, String[] params) throws Exception {
         assertPostGameJoin();
-        return "";
+        if (params.length == 2) {
+            var startString = params[0];
+            var endString = params[1];
+            MoveConverter moveConverter = new MoveConverter(startString, endString);
+            var chessMove = moveConverter.convert(startString, endString);
+            var listGames = gameList;
+            var gameMap = listGames.get(gameNum);
+            int gameID = gameMap.gameID();
+            try {
+                ws.makeMove(authToken, gameID, chessMove);
+            } catch (Exception e) {
+                throw new Exception(e.getMessage());
+            }
+            updateGameList();
+            chess = gameList.get(gameNum).game();
+            return "You made a move.\n";
+        }
+        throw new ResponseException(400, "Expected: <start position> <end position>\n");
     }
 
     private String redrawBoard() throws ResponseException {
         assertPostGameJoin();
-        board = new PrintBoard(chess, teamColor);
+        var listGames = gameList;
+        var gameMap = listGames.get(gameNum);
+        int gameID = gameMap.gameID();
+        ws.makeMove(authToken, gameID, null);
         return "Game board redrawn\n";
     }
 
@@ -228,6 +248,15 @@ public class ChessClient {
             return String.format("Game ID: %s\n", game.gameID());
         }
         throw new ResponseException(400, "Expected: <GameName>\n");
+    }
+
+    private void updateGameList() throws ResponseException {
+        ListGamesResult games = (ListGamesResult) server.listGames(authToken);
+        ArrayList<GameData> gameVal = (ArrayList<GameData>) games.games();
+        for (int i=0; i<gameVal.size(); i++) {
+            var gameData = gameVal.get(i);
+            gameList.put(i+1,gameData);
+        }
     }
 
     private void assertPostLogin() throws ResponseException {
