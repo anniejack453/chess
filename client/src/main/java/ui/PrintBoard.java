@@ -87,7 +87,7 @@ public class PrintBoard {
                 } else {
                     currPosition = new ChessPosition(boardRow,9-boardCol);
                 }
-                if (position != null) {
+                if (position != null && chess.getBoard().getPiece(position) != null) {
                     if (checkMoves(currPosition)) {
                         out.print(SET_BG_COLOR_GREEN);
                     } else if ((boardRow + boardCol) % 2 == 0) {

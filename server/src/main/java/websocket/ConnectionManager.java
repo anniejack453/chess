@@ -92,7 +92,7 @@ public class ConnectionManager {
         }
     }
 
-    public void broadcastResign(Integer gameID, NotificationMessage message) throws IOException {
+    public void broadcastNotif(Integer gameID, NotificationMessage message) throws IOException {
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
                 if (c.gameID == gameID) {
@@ -101,5 +101,7 @@ public class ConnectionManager {
             }
         }
     }
+
+
 }
 

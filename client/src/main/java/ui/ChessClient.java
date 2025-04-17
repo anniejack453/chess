@@ -107,9 +107,9 @@ public class ChessClient {
             try {
                 ChessPosition position = moveConverter.convertStartPosition(startString);
                 new PrintBoard(chess, teamColor, position);
-                return "Highlighted move\n";
+                return "\n";
             } catch (Exception e) {
-                throw new Exception("Expected <position>\n");
+                throw new Exception(e.getMessage());
             }
         }
         throw new Exception("Expected: <position>\n");
@@ -120,6 +120,12 @@ public class ChessClient {
         var listGames = gameList;
         var gameMap = listGames.get(gameNum);
         int gameID = gameMap.gameID();
+        Scanner s = new Scanner(System.in);
+        System.out.print("Are you sure you want to resign? (yes/no): ");
+        String input = s.nextLine().trim().toLowerCase();
+        if (!input.equals("yes")) {
+            return "Resignation canceled.\n";
+        }
         ws.resign(authToken, gameID);
         return "You forfeited the game\n";
     }

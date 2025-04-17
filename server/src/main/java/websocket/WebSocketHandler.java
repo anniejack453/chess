@@ -4,7 +4,6 @@ import chess.ChessGame;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.*;
-import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -20,7 +19,6 @@ import websocket.commands.UserGameCommand;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Timer;
 
 @WebSocket
 public class WebSocketHandler {
@@ -96,7 +94,7 @@ public class WebSocketHandler {
         var notif = String.format("%s has resigned\n", username);
         if (gameName != null) {
             var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
-            connections.broadcastResign(command.getGameID(), message);
+            connections.broadcastNotif(command.getGameID(), message);
             state = WebSocketState.RESIGNED;
         } else {
             throw new DataAccessException("Invalid game ID\n");
@@ -204,6 +202,13 @@ public class WebSocketHandler {
         var notif = String.format("%s has made a move %s\n", username, moveString);
         chess.makeMove(command.getMove());
         gameDAO.updateGame(gameName, chess);
+        if (chess.isInCheckmate(ChessGame.TeamColor.BLACK) || chess.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+            notif = String.format("%s is in checkmate\n", username);
+        } else if (chess.isInCheck(ChessGame.TeamColor.BLACK) || chess.isInCheck(ChessGame.TeamColor.WHITE)) {
+            notif = String.format("%s is in check\n", username);
+        } else if (chess.isInStalemate(ChessGame.TeamColor.BLACK) || chess.isInStalemate(ChessGame.TeamColor.WHITE)) {
+            notif = "Game is in stalemate\n";
+        }
         return new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
     }
 
