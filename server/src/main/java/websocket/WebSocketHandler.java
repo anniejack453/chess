@@ -114,13 +114,13 @@ public class WebSocketHandler {
             var message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notif);
             if (Objects.equals(username, gameData.blackUsername())) {
                 var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.BLACK);
-                connections.broadcastLoadGameAfterConnect(username, command.getGameID(), game);
+                connections.broadcastLoadGame(username, command.getGameID(), game);
             } else if (Objects.equals(username, gameData.whiteUsername())) {
                 var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
-                connections.broadcastLoadGameAfterConnect(username, command.getGameID(), game);
+                connections.broadcastLoadGame(username, command.getGameID(), game);
             } else {
                 var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
-                connections.broadcastLoadGameAfterConnect(username, command.getGameID(), game);
+                connections.broadcastLoadGame(username, command.getGameID(), game);
             }
             connections.broadcastOthers(username, command.getGameID(), message);
         } else {
@@ -153,15 +153,15 @@ public class WebSocketHandler {
             }
             if (command.getMove() == null && Objects.equals(username, gameData.blackUsername())) {
                 var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.BLACK);
-                connections.broadcastLoadGameAfterMove(username, command.getGameID(), game);
+                connections.broadcastLoadGame(username, command.getGameID(), game);
                 return;
             } else if (command.getMove() == null && Objects.equals(username, gameData.whiteUsername())) {
                 var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
-                connections.broadcastLoadGameAfterMove(username, command.getGameID(), game);
+                connections.broadcastLoadGame(username, command.getGameID(), game);
                 return;
             } else if (command.getMove() == null) {
                 var game = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
-                connections.broadcastLoadGameAfterMove(username, command.getGameID(), game);
+                connections.broadcastLoadGame(username, command.getGameID(), game);
                 return;
             } else if (Objects.equals(username, gameData.blackUsername()) && chess.getTeamTurn() == ChessGame.TeamColor.BLACK) {
                 try {
@@ -169,7 +169,7 @@ public class WebSocketHandler {
                     var selfGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.BLACK);
                     var otherGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, chess, ChessGame.TeamColor.WHITE);
                     connections.broadcastOthers(username, command.getGameID(), message);
-                    connections.broadcastLoadGameAfterMove(username, command.getGameID(), selfGame);
+                    connections.broadcastLoadGame(username, command.getGameID(), selfGame);
                     connections.broadcastLoadGameForOthers(username, command.getGameID(), otherGame);
                 } catch (InvalidMoveException e) {
                     throw new RuntimeException(e);
@@ -182,9 +182,9 @@ public class WebSocketHandler {
                     connections.broadcastOthers(username, command.getGameID(), message);
                     if (gameData.blackUsername() != null) {
                         connections.broadcastLoadGameForOthers(gameData.blackUsername(), command.getGameID(), selfGame);
-                        connections.broadcastLoadGameAfterMove(gameData.blackUsername(), command.getGameID(), otherGame);
+                        connections.broadcastLoadGame(gameData.blackUsername(), command.getGameID(), otherGame);
                     } else {
-                        connections.broadcastLoadGameAfterMove(username, command.getGameID(), selfGame);
+                        connections.broadcastLoadGame(username, command.getGameID(), selfGame);
                         connections.broadcastLoadGameForOthers(username, command.getGameID(), selfGame);
                     }
                 } catch (InvalidMoveException e) {

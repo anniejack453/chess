@@ -1,6 +1,5 @@
 package websocket;
 
-import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
@@ -16,14 +15,6 @@ public class MoveConverter {
         this.startPosition = startPosition;
         this.endPosition = endPosition;
         this.pieceType = pieceType;
-    }
-
-    public String getEndPosition() {
-        return endPosition;
-    }
-
-    public String getStartPosition() {
-        return startPosition;
     }
 
     public ChessPosition convertStartPosition(String startPosition) {

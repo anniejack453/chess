@@ -22,7 +22,8 @@ public class UserGameCommand {
 
     private ChessGame.TeamColor teamColor;
 
-    public UserGameCommand(CommandType commandType, String authToken, Integer gameID, IdentityType identity, ChessGame.TeamColor teamColor) {
+    public UserGameCommand(CommandType commandType, String authToken, Integer gameID,
+                           IdentityType identity, ChessGame.TeamColor teamColor) {
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
@@ -36,7 +37,8 @@ public class UserGameCommand {
             return false;
         }
         UserGameCommand that = (UserGameCommand) o;
-        return commandType == that.commandType && Objects.equals(authToken, that.authToken) && Objects.equals(gameID, that.gameID) && identity == that.identity && teamColor == that.teamColor;
+        return commandType == that.commandType && Objects.equals(authToken, that.authToken) &&
+                Objects.equals(gameID, that.gameID) && identity == that.identity && teamColor == that.teamColor;
     }
 
     @Override

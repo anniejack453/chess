@@ -35,10 +35,6 @@ public class ChessClient {
         this.chess = chess;
     }
 
-    public ChessGame getChess() {
-        return chess;
-    }
-
     public String help() {
         if (state == State.PRELOGIN) {
             return """

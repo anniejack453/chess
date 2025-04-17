@@ -52,7 +52,8 @@ public class WebSocketFacade extends Endpoint {
 
     public void joinGame(String authToken, Integer gameID, ChessGame.TeamColor teamColor) throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, UserGameCommand.IdentityType.PLAYER, teamColor);
+            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken,
+                    gameID, UserGameCommand.IdentityType.PLAYER, teamColor);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
@@ -61,7 +62,8 @@ public class WebSocketFacade extends Endpoint {
 
     public void observeGame(String authToken, Integer gameID) throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, UserGameCommand.IdentityType.OBSERVER, ChessGame.TeamColor.WHITE);
+            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken,
+                    gameID, UserGameCommand.IdentityType.OBSERVER, ChessGame.TeamColor.WHITE);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
@@ -70,7 +72,8 @@ public class WebSocketFacade extends Endpoint {
 
     public void leaveGame(String authToken, Integer gameID) throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID, null, null);
+            var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken,
+                    gameID, null, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
@@ -79,17 +82,18 @@ public class WebSocketFacade extends Endpoint {
 
     public void resign(String authToken, Integer gameID) throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID, UserGameCommand.IdentityType.PLAYER, null);
+            var command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken,
+                    gameID, UserGameCommand.IdentityType.PLAYER, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
         }
     }
 
-
     public void makeMove(String authToken, Integer gameID, ChessGame.TeamColor teamColor, ChessMove move) throws ResponseException {
         try {
-            var command = new MoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, UserGameCommand.IdentityType.PLAYER, teamColor, move);
+            var command = new MoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken,
+                    gameID, UserGameCommand.IdentityType.PLAYER, teamColor, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());

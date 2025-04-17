@@ -88,19 +88,14 @@ public class PrintBoard {
                     currPosition = new ChessPosition(boardRow,9-boardCol);
                 }
                 if (position != null) {
-                    boolean positionMatch = false;
-                    for (var move : chess.validMoves(position))
-                        if (move.getEndPosition().equals(currPosition)) {
-                            positionMatch = true;
-                        }
-                    if (positionMatch) {
+                    if (checkMoves(currPosition)) {
                         out.print(SET_BG_COLOR_GREEN);
-                    } else if ((boardRow + boardCol) % 2 == 0) { //check for highlight another for loop for possible moves
+                    } else if ((boardRow + boardCol) % 2 == 0) {
                         out.print(SET_BG_COLOR_WHITE);
                     } else {
                         out.print(SET_BG_COLOR_BLACK);
                     }
-                } else if ((boardRow + boardCol) % 2 == 0) { //check for highlight another for loop for possible moves
+                } else if ((boardRow + boardCol) % 2 == 0) {
                     out.print(SET_BG_COLOR_WHITE);
                 } else {
                     out.print(SET_BG_COLOR_BLACK);
@@ -137,6 +132,16 @@ public class PrintBoard {
         out.print("  ");
     }
 
+    private boolean checkMoves(ChessPosition currPosition) {
+        boolean positionMatch = false;
+        for (var move : chess.validMoves(position)) {
+            if (move.getEndPosition().equals(currPosition)) {
+                positionMatch = true;
+            }
+        }
+        return positionMatch;
+    }
+
     private void determinePiece(PrintStream out, ChessPiece piece) {
         if (piece != null){
             if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
@@ -167,10 +172,6 @@ public class PrintBoard {
         } else {
             out.print(" ");
         }
-    }
-
-    private void highlightMoves(ChessPosition position) {
-
     }
 
     private void endRowOfSquares(PrintStream out) {
