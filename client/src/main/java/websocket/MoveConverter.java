@@ -42,14 +42,16 @@ public class MoveConverter {
         int endRow = endPosition.charAt(1);
         var end = new ChessPosition(endRow-'0', endCol-'`');
 
-        if (pieceType.toUpperCase() == "ROOK") {
-            promo = ChessPiece.PieceType.ROOK;
-        } else if (pieceType.toUpperCase() == "KNIGHT") {
-            promo = ChessPiece.PieceType.KNIGHT;
-        } else if (pieceType.toUpperCase() == "BISHOP") {
-            promo = ChessPiece.PieceType.BISHOP;
-        } else if (pieceType.toUpperCase() == "QUEEN") {
-            promo = ChessPiece.PieceType.QUEEN;
+        if (pieceType != null) {
+            if (pieceType.toUpperCase() == "ROOK") {
+                promo = ChessPiece.PieceType.ROOK;
+            } else if (pieceType.toUpperCase() == "KNIGHT") {
+                promo = ChessPiece.PieceType.KNIGHT;
+            } else if (pieceType.toUpperCase() == "BISHOP") {
+                promo = ChessPiece.PieceType.BISHOP;
+            } else if (pieceType.toUpperCase() == "QUEEN") {
+                promo = ChessPiece.PieceType.QUEEN;
+            }
         }
         return new ChessMove(start, end, promo);
     }

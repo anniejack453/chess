@@ -107,12 +107,7 @@ public class WebSocketHandler {
         state = WebSocketState.GAMEPLAY;
         var gameName = gameDAO.getGameID(command.getGameID());
         var gameData = gameDAO.getGameData(gameName);
-        var notif = "";
-        if (command.getTeamColor() != null) {
-            notif = String.format("%s has joined the game as %s\n", username, command.getTeamColor());
-        } else {
-            notif = String.format("%s has joined the game\n", username);
-        }
+        var notif = getString(username, command, gameData);
         if (gameName != null) {
             connections.add(username, command.getGameID(), session);
             var chess = gameDAO.getGameData(gameName).game();
@@ -131,6 +126,20 @@ public class WebSocketHandler {
         } else {
             throw new DataAccessException("Invalid game ID\n");
         }
+    }
+
+    private static String getString(String username, UserGameCommand command, GameData gameData) {
+        var notif = "";
+        if (command.getTeamColor() == ChessGame.TeamColor.BLACK) {
+            notif = String.format("%s has joined the game as %s\n", username, command.getTeamColor());
+        } else {
+            if (Objects.equals(username, gameData.whiteUsername())) {
+                notif = String.format("%s has joined the game as %s\n", username, command.getTeamColor());
+            } else {
+                notif = String.format("%s has joined the game\n", username);
+            }
+        }
+        return notif;
     }
 
     private void makeMove(String username, MoveCommand command, Session session) throws Exception {

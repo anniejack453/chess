@@ -76,6 +76,16 @@ public class ConnectionManager {
         }
     }
 
+    public void broadcastError(Integer gameID, ErrorMessage message) throws IOException {
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (c.gameID.equals(gameID)) {
+                    c.send(new Gson().toJson(message));
+                }
+            }
+        }
+    }
+
     public void broadcastLoadGameForOthers(String username, Integer gameID, LoadGameMessage message) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {

@@ -111,6 +111,7 @@ public class ChessClient {
             try {
                 ChessPosition position = moveConverter.convertStartPosition(startString);
                 new PrintBoard(chess, teamColor, position);
+                return "Highlighted move\n";
             } catch (Exception e) {
                 throw new Exception("Expected <position>\n");
             }

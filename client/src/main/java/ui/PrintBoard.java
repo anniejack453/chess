@@ -14,13 +14,16 @@ import static ui.EscapeSequences.*;
 public class PrintBoard {
     private ChessBoard board;
     private ChessGame chess;
+    private ChessPosition position;
     private static ChessGame.TeamColor playerColor;
     private static final int BOARD_SIZE_IN_SQUARES = 10;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
 
-    public PrintBoard(ChessGame game, ChessGame.TeamColor playerColor) {
+    public PrintBoard(ChessGame game, ChessGame.TeamColor playerColor, ChessPosition position) {
         this.board = game.getBoard();
         this.playerColor = playerColor;
+        this.position = position;
+        this.chess = game;
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
         drawHeaders(out);
@@ -77,21 +80,32 @@ public class PrintBoard {
                     out.print("  ");
                 }
             }
+            ChessPosition currPosition;
             for (int boardCol = 1; boardCol < BOARD_SIZE_IN_SQUARES-1; ++boardCol) {
-                if ((boardRow + boardCol) % 2 == 0) { //check for highlight another for loop for possible moves
+                if (playerColor == ChessGame.TeamColor.WHITE) {
+                    currPosition = new ChessPosition(9-boardRow,boardCol);
+                } else {
+                    currPosition = new ChessPosition(boardRow,9-boardCol);
+                }
+                if (position != null) {
+                    boolean positionMatch = false;
+                    for (var move : chess.validMoves(position))
+                        if (move.getEndPosition().equals(currPosition)) {
+                            positionMatch = true;
+                        }
+                    if (positionMatch) {
+                        out.print(SET_BG_COLOR_GREEN);
+                    } else if ((boardRow + boardCol) % 2 == 0) { //check for highlight another for loop for possible moves
+                        out.print(SET_BG_COLOR_WHITE);
+                    } else {
+                        out.print(SET_BG_COLOR_BLACK);
+                    }
+                } else if ((boardRow + boardCol) % 2 == 0) { //check for highlight another for loop for possible moves
                     out.print(SET_BG_COLOR_WHITE);
                 } else {
                     out.print(SET_BG_COLOR_BLACK);
                 }
-                out.print("  ");
-                if (playerColor == ChessGame.TeamColor.WHITE) {
-                    ChessPiece piece = board.getPiece(new ChessPosition(9-boardRow,boardCol));
-                    determinePiece(out, piece);
-                } else {
-                    ChessPiece piece = board.getPiece(new ChessPosition(boardRow,9-boardCol));
-                    determinePiece(out, piece);
-                }
-                out.print("  ");
+                printSquares(out, boardRow, boardCol);
             }
             if (playerColor == ChessGame.TeamColor.WHITE) {
                 out.print(SET_BG_COLOR_LIGHT_GREY);
@@ -109,6 +123,18 @@ public class PrintBoard {
         }
         out.print(RESET_BG_COLOR);
         out.println();
+    }
+
+    private void printSquares(PrintStream out, int boardRow, int boardCol) {
+        out.print("  ");
+        if (playerColor == ChessGame.TeamColor.WHITE) {
+            ChessPiece piece = board.getPiece(new ChessPosition(9-boardRow,boardCol));
+            determinePiece(out, piece);
+        } else {
+            ChessPiece piece = board.getPiece(new ChessPosition(boardRow,9-boardCol));
+            determinePiece(out, piece);
+        }
+        out.print("  ");
     }
 
     private void determinePiece(PrintStream out, ChessPiece piece) {
